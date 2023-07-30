@@ -1,4 +1,4 @@
-# Rest taskSphere api TypeScript(ex.jira)
+# Rest taskSphere api TypeScript(ex.Jira)
 
 ### technologies
 
