@@ -62,7 +62,7 @@ const server = createServer(app)
 
 function onListening() {
   const addr = server.address()
-  console.log(process.env.DB_URI)
+
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr!.port}`
   logger.info(`Listening on ${bind}`)
