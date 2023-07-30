@@ -1,4 +1,4 @@
-# Rest Cab api TypeScript(ex:Uber)
+# Rest taskSphere api TypeScript(ex:jira)
 
 ### technologies
 
