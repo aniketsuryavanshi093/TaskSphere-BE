@@ -2,6 +2,7 @@ import { config } from 'dotenv'
 import { createServer } from 'http'
 import app from '../app'
 import logger from '../config/logger'
+import { generateKey } from '@utils/jwt'
 
 config()
 /*
@@ -86,8 +87,9 @@ function onListening() {
 /**
  * Listen on provided port, on all network interfaces.
  */
-
-server.listen(port)
-logger.info(`Server has started on ${port}`)
-server.on('error', onError)
-server.on('listening', onListening)
+generateKey().then(() => {
+  server.listen(port)
+  logger.info(`Server has started on ${port}`)
+  server.on('error', onError)
+  server.on('listening', onListening)
+})

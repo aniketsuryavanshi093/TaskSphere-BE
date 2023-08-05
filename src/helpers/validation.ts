@@ -1,10 +1,10 @@
 import Joi, { ObjectSchema } from '@hapi/joi'
 // =========================== user registration validation===========================================
 export const registerInput: ObjectSchema = Joi.object({
-  name: Joi.string().required().messages({
-    'string.empty': 'Name must not be empty',
-    'string.base': 'Name should be a type of string',
-    'any.required': 'Name is required',
+  userName: Joi.string().required().messages({
+    'string.empty': 'username must not be empty',
+    'string.base': 'username should be a type of string',
+    'any.required': 'username is required',
   }),
   email: Joi.string().email().lowercase().required().messages({
     'string.empty': 'Email must not be empty',

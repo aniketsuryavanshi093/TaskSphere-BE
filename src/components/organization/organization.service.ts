@@ -1,9 +1,25 @@
 // import Cab from '../cab/cabModel'
 // import { TCab } from '../cab/types'
-// import getDistanceFromLatLonInKm from '../../helpers/calDistance'
-// import AppError from '../../utils/appError'
+import getDistanceFromLatLonInKm from '../../helpers/calDistance'
+import AppError from '../../utils/appError'
+import Organization from './oragnization.model'
 // import Booking from './oragnization.model'
 // import { AddressType, TBooking } from './types'
+
+export const createOrganization = async (input: any) => {
+  const doc = await Organization.create(input)
+  return doc ? doc : null
+}
+
+export const getOrganization = async (filter: any) => {
+  try {
+    filter.isDeleted = false
+    const doc = await Organization.findOne(filter)
+    return doc
+  } catch (error: any) {
+    throw new AppError(error, 400)
+  }
+}
 
 // // =========================== create boooking service ======================
 // export const createBookingService = async (

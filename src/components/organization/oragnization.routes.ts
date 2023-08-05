@@ -1,4 +1,6 @@
-// import express from 'express'
+import express from 'express'
+import { getOrganizationDetails } from './organization.controller'
+import { userAuth } from '@middlewares/auth'
 // import { userAuth } from '../../middlewares/auth'
 // import {
 //   bookCabByid,
@@ -11,9 +13,9 @@
 //   getNearByCab,
 // } from './organization.controller'
 
-// const router = express.Router()
+const router = express.Router()
 
-// router.post('/', userAuth, createBooking)
+router.get('/', userAuth, getOrganizationDetails)
 // router.post('/:cabId', userAuth, bookCabByid)
 // router.get('/', userAuth, getAllBookings)
 
@@ -23,4 +25,4 @@
 // router.delete('/:id', userAuth, cancelBooking)
 // router.delete('/complete/:id', userAuth, dropped)
 
-// export default router
+export default router

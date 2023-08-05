@@ -1,18 +1,16 @@
 import { Document } from 'mongoose'
-
-export interface AddressType {
-  type: string
-  coordinates: number[]
-  address: string
+export interface organizationInput {
+  name: string
+  email: string
+  password: string
+  role?: string
+  userName: string
 }
 
-export interface BookingInputType {
-  currentAddress: AddressType
-  destinationAddress: AddressType
-  price: number
-  cab: string
-  bookedBy: string
+export interface organizationInterface extends organizationInput, Document {
   isDeleted: boolean
+  passwordResetToken: string
+  passwordResetExpired: Date
+  comparePassword: (password: string) => boolean
+  createPasswordResetToken: () => string
 }
-
-export interface TBooking extends BookingInputType, Document {}
