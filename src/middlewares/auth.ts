@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import AppError from '../utils/appError'
-import { VerifyToken } from '../utils/jwt'
+import { verifyToken } from '@utils/jwt'
 
 export const userAuth = async (
   req: Request,
@@ -13,7 +13,7 @@ export const userAuth = async (
     }
 
     const token = req.headers.authorization.split(' ')[1]
-    const decode = VerifyToken(token)
+    const decode = await verifyToken(token)
     if (!decode) {
       throw new AppError('Unauthorized', 401)
     }

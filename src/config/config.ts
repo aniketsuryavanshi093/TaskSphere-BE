@@ -13,7 +13,7 @@ const SERVER = {
 
 const jwt = {
   secret: process.env.JWT_SECRET,
-  ex: process.env.JWT_EX,
+  expireIn: process.env.JWT_EXP,
 }
 
 const db = {

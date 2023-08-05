@@ -1,19 +1,20 @@
 import express from 'express'
-import { userAuth } from '../../middlewares/auth'
+// import { userAuth } from '../../middlewares/auth'
 import {
-  forgetPassword,
-  loginUser,
-  registerUser,
-  resetPassword,
-  updateUser,
+  //   forgetPassword,
+  //   loginUser,
+  //   registerUser,
+  //   resetPassword,
+  //   updateUser,
+  addMember,
 } from '@members/member.controller'
 
 const router = express.Router()
 
-router.post('/register', registerUser)
-router.post('/login', loginUser)
-router.patch('/update', userAuth, updateUser)
-router.post('/forgotPassword', forgetPassword)
-router.post('/resetPassword/:token', resetPassword)
+router.post('/addMember', addMember)
+// router.post('/login', loginUser)
+// router.patch('/update', userAuth, updateUser)
+// router.post('/forgotPassword', forgetPassword)
+// router.post('/resetPassword/:token', resetPassword)
 
 export default router

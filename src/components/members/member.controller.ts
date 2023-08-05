@@ -15,10 +15,10 @@ import {
   forgotPasswordToken,
   resetPasswordService,
 } from '@members/member.service'
-import { GenerateToken } from '../../utils/jwt'
+import { generateToken } from '../../utils/jwt'
 import sendEmail from '../../utils/email'
 import logger from '../../config/logger'
-export const registerUser = async (
+export const addMember = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -53,43 +53,43 @@ export const registerUser = async (
   }
 }
 
-export const loginUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void | Response> => {
-  try {
-    const data = await loginInput.validateAsync(req.body)
-    const { email, password } = data
-    const user = await findOneBy({ email })
+// export const loginUser = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ): Promise<void | Response> => {
+//   try {
+//     const data = await loginInput.validateAsync(req.body)
+//     const { email, password } = data
+//     const user = await findOneBy({ email })
 
-    if (!user) {
-      throw new AppError('Email is not registered!', 400)
-    }
+//     if (!user) {
+//       throw new AppError('Email is not registered!', 400)
+//     }
 
-    const isValid = await user.comparePassword(password)
+//     const isValid = await user.comparePassword(password)
 
-    if (!isValid) {
-      throw new AppError('Incorrect password', 400)
-    }
+//     if (!isValid) {
+//       throw new AppError('Incorrect password', 400)
+//     }
 
-    const token = GenerateToken({
-      _id: user._id,
-      email: user.email,
-      role: user.role!,
-    })
-    return res.status(200).json({
-      satus: 'success',
-      message: 'login successful',
-      data: { id: user._id, token },
-    })
-  } catch (error: any) {
-    if (error.isJoi === true) {
-      error.statusCode = 422
-    }
-    next(error)
-  }
-}
+//     const token = generateToken({
+//       _id: user._id,
+//       email: user.email,
+//       role: user.role!,
+//     })
+//     return res.status(200).json({
+//       satus: 'success',
+//       message: 'login successful',
+//       data: { id: user._id, token },
+//     })
+//   } catch (error: any) {
+//     if (error.isJoi === true) {
+//       error.statusCode = 422
+//     }
+//     next(error)
+//   }
+// }
 
 export const updateUser = async (
   req: Request,

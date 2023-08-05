@@ -103,6 +103,8 @@
 	"_moduleAliases": {
 		"@members": "build/src/components/members",
 		"@projects": "build/src/components/projects",
+		"@organization": "build/src/components/organization",
+		"@auth": "build/src/components/auth",
 		"@order": "build/src/components/order",
 		"@config": "build/src/config",
 		"@connections": "build/src/connections",

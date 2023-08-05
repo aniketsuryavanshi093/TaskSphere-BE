@@ -1,11 +1,13 @@
 import express, { Request, Response, Application } from 'express'
 import morgan from 'morgan'
+import cors from 'cors'
 import router from './components/index'
 import errorHandler from './helpers/errorHandler'
 
 const app: Application = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
+app.use(cors({ origin: true }))
 
 // loggin all the requests in middleware
 app.use(morgan('dev'))
