@@ -31,6 +31,10 @@ const organizationSchema = new Schema(
     passwordResetToken: {
       type: String,
     },
+    isGoogleLogin: {
+      type: Boolean,
+      default: false,
+    },
     passwordResetExpired: Date,
     role: {
       type: String,

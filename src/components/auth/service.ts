@@ -3,8 +3,12 @@ import AppError from '../../utils/appError'
 import Organization from '@organization/oragnization.model'
 
 export const createOrganization = async (input: any) => {
-  const doc = await Organization.create(input)
-  return doc ? doc : null
+  try {
+    const doc = await Organization.create(input)
+    return doc ? doc : null
+  } catch (error: any) {
+    throw new AppError(error, 400)
+  }
 }
 
 export const getOrganization = async (filter: any) => {

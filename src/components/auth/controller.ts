@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Request, Response, NextFunction } from 'express'
 import AppError from '../../utils/appError'
 import { createOrganization, getMemeber, getOrganization } from '@auth/service'
@@ -25,7 +26,7 @@ export const registerOrganization = async (
     if (isMemberExist) {
       throw new AppError('Email is already registered', 409)
     }
-
+    console.log(req.body)
     const doc = await createOrganization(req.body)
     return res
       .status(201)
@@ -44,7 +45,7 @@ export const login = async (
   next: NextFunction
 ): Promise<void | Response> => {
   try {
-    const { loginCredential, password } = req.body
+    const { loginCredential, password, isGoogleLogin } = req.body
     let user: any = {}
     const checkForOrganization = await getOrganization({
       $or: [{ email: loginCredential }, { userName: loginCredential }],
@@ -56,16 +57,24 @@ export const login = async (
       if (checkForMember === null) {
         throw new AppError('Invalid credentials', 409)
       }
-      const isValid = await checkForMember.comparePassword(password)
-
-      if (!isValid) {
+      let confirmPassword = false
+      if (isGoogleLogin) {
+        confirmPassword = false
+      } else {
+        confirmPassword = await checkForMember.comparePassword(password)
+      }
+      if (!confirmPassword && !isGoogleLogin) {
         throw new AppError('Incorrect password', 400)
       }
       user = checkForMember
     } else {
-      const isValid = await checkForOrganization.comparePassword(password)
-
-      if (!isValid) {
+      let confirmPassword = false
+      if (isGoogleLogin) {
+        confirmPassword = false
+      } else {
+        confirmPassword = await checkForOrganization.comparePassword(password)
+      }
+      if (!confirmPassword && !isGoogleLogin) {
         throw new AppError('Incorrect password', 400)
       }
       user = checkForOrganization
