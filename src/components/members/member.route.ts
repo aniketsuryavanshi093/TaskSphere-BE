@@ -8,10 +8,11 @@ import {
   //   updateUser,
   addMember,
 } from '@members/member.controller'
+import { userAuth } from '@middlewares/auth'
 
 const router = express.Router()
 
-router.post('/addMember', addMember)
+router.post('/addMember', userAuth, addMember)
 // router.post('/login', loginUser)
 // router.patch('/update', userAuth, updateUser)
 // router.post('/forgotPassword', forgetPassword)
