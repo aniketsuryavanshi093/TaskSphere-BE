@@ -9,42 +9,46 @@ import {
   updateUserInput,
 } from '../../helpers/validation'
 import {
-  create,
+  createMember,
   findAndUpdate,
-  findOneBy,
   forgotPasswordToken,
+  getMemeber,
   resetPasswordService,
 } from '@members/member.service'
 import { generateToken } from '../../utils/jwt'
 import sendEmail from '../../utils/email'
 import logger from '../../config/logger'
+import { getOrganization } from '@organization/organization.service'
 export const addMember = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void | Response> => {
   try {
-    //   validate req.body for register
-    const data = await registerInput.validateAsync(req.body)
-    // check email is already registered?
-    const isExist = await findOneBy({ email: data.email })
-    if (isExist) {
-      throw new AppError('Email is already registered', 409)
-    }
+    const { email, userName } = req.body
     // check for role admin
-    if (data.role === 'admin') {
-      const checkAdmin = await findOneBy({ role: 'admin' })
-      if (checkAdmin) {
-        throw new AppError(
-          'Admin is already exist please login as a user or driver',
-          400
-        )
-      }
+    if (req.user.role !== 'organization') {
+      throw new AppError('You are not authorized to access this route', 400)
     }
-    const doc = await create(data)
+    const data = req.body
+    data.organizationId = req.user._id
+    const isMemberExist = await getMemeber({
+      $or: [{ email }, { userName }],
+    })
+    if (isMemberExist) {
+      throw new AppError('Email or user name is already registered', 409)
+    }
+    // check for organization is created with same
+    const isExist = await getOrganization({
+      $or: [{ email }, { userName }],
+    })
+    if (isExist) {
+      throw new AppError('Email or user name is already registered', 409)
+    }
+    const doc = await createMember(data)
     return res
       .status(200)
-      .json({ status: 'success', message: 'Registration success', data: doc })
+      .json({ status: 'success', message: 'Member added', data: doc })
   } catch (error: any) {
     if (error.isJoi === true) {
       error.statusCode = 422

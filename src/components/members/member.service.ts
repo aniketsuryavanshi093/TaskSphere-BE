@@ -1,16 +1,20 @@
 import AppError from '@utils/appError'
-import { TUser, userInput } from './types'
-import User from '@members/member.model'
+import { MemberInterface, memberInput } from './types'
+import Member from '@members/member.model'
 
-export const create = async (input: userInput): Promise<TUser | boolean> => {
-  const doc = await User.create(input)
-  return doc ? doc : false
+export const createMember = async (
+  input: memberInput
+): Promise<MemberInterface | null> => {
+  const doc = await Member.create(input)
+  return doc
 }
 
-export const findOneBy = async (filter: any): Promise<TUser | null> => {
+export const getMemeber = async (
+  filter: any
+): Promise<MemberInterface | null> => {
   try {
     filter.isDeleted = false
-    const doc = await User.findOne(filter)
+    const doc = await Member.findOne(filter)
     return doc
   } catch (error: any) {
     throw new AppError(error, 400)
@@ -19,10 +23,10 @@ export const findOneBy = async (filter: any): Promise<TUser | null> => {
 
 export const findAndUpdate = async (
   filter: any,
-  data: Partial<userInput>
-): Promise<TUser | boolean> => {
+  data: Partial<memberInput>
+): Promise<MemberInterface | boolean> => {
   try {
-    const doc = await User.findOne(filter)
+    const doc = await Member.findOne(filter)
     if (doc === null) {
       throw new AppError('user not found', 400)
     }
@@ -37,7 +41,7 @@ export const findAndUpdate = async (
 export const findAndDelete = async (data: any) => {
   try {
     data.isDeleted = false
-    const doc = await User.findOne(data, 'isDeleted')
+    const doc = await Member.findOne(data, 'isDeleted')
     if (!doc) {
       return false
     }
@@ -52,7 +56,7 @@ export const findAndDelete = async (data: any) => {
 //=============================== forgot password service =======================================
 export const forgotPasswordToken = async (email: string): Promise<string> => {
   try {
-    const user = await User.findOne({ email })
+    const user = await Member.findOne({ email })
     if (!user) {
       throw new AppError('invalid email', 400)
     }
@@ -69,7 +73,7 @@ export const resetPasswordService = async (
   newPassword: string
 ): Promise<boolean> => {
   try {
-    const user = await User.findOne(
+    const user = await Member.findOne(
       {
         passwordResetToken,
         passwordResetExpired: { $gt: Date.now() },
