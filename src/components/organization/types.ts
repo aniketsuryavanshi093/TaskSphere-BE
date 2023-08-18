@@ -1,3 +1,4 @@
+import { Schema } from 'mongoose'
 import { Document } from 'mongoose'
 export interface organizationInput {
   name: string
@@ -5,6 +6,8 @@ export interface organizationInput {
   password: string
   role?: string
   userName: string
+  members: [Schema.Types.ObjectId],
+  projects: [Schema.Types.ObjectId],
 }
 
 export interface organizationInterface extends organizationInput, Document {

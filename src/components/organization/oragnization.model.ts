@@ -20,6 +20,11 @@ const organizationSchema = new Schema(
       type: String,
       required: true,
     },
+    members: [{
+      type: Schema.Types.ObjectId,
+      required: false,
+      ref: 'Member',
+    }],
     password: {
       type: String,
       required: true,
@@ -28,6 +33,13 @@ const organizationSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    projects: [
+      {
+        type: Schema.Types.ObjectId,
+        required: false,
+        ref: 'Project',
+      }
+    ],
     passwordResetToken: {
       type: String,
     },

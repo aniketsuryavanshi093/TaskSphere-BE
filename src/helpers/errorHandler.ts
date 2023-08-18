@@ -50,3 +50,12 @@ export default (err: any, req: Request, res: Response, next: NextFunction) => {
     sendErrorDevelopment(err, res)
   }
 }
+export const handleResponse = ({
+  res,
+  statusCode = 200,
+  msg = 'Success',
+  data = {},
+  result = 1,
+}) => {
+  res.status(statusCode).send({ result, msg, data })
+}

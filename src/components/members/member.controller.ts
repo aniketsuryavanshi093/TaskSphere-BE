@@ -19,6 +19,7 @@ import { generateToken } from '../../utils/jwt'
 import sendEmail from '../../utils/email'
 import logger from '../../config/logger'
 import { getOrganization } from '@organization/organization.service'
+import Organization from '@organization/oragnization.model'
 export const addMember = async (
   req: Request,
   res: Response,
@@ -46,6 +47,9 @@ export const addMember = async (
       throw new AppError('Email or user name is already registered', 409)
     }
     const doc = await createMember(data)
+    await Organization.findByIdAndUpdate(doc?.organizationId, {
+      $push: { members: doc?._id },
+    })
     return res
       .status(200)
       .json({ status: 'success', message: 'Member added', data: doc })

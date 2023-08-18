@@ -64,7 +64,7 @@ export const login = async (
         confirmPassword = await checkForMember.comparePassword(password)
       }
       if (!confirmPassword && !isGoogleLogin) {
-        throw new AppError('Incorrect password', 400)
+        throw new AppError('Please enter valid credentials!', 400)
       }
       user = checkForMember
     } else {
@@ -75,7 +75,7 @@ export const login = async (
         confirmPassword = await checkForOrganization.comparePassword(password)
       }
       if (!confirmPassword && !isGoogleLogin) {
-        throw new AppError('Incorrect password', 400)
+        throw new AppError('Please enter valid credentials!', 400)
       }
       user = checkForOrganization
     }
