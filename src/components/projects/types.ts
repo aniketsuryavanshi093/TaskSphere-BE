@@ -5,5 +5,6 @@ export interface projectTypes extends Document {
   members: memberInput[]
   description: string
   tasks: any
+  logoUrl: string
   organizationId: string
 }

@@ -53,9 +53,9 @@ export default (err: any, req: Request, res: Response, next: NextFunction) => {
 export const handleResponse = ({
   res,
   statusCode = 200,
-  msg = 'Success',
+  message = 'Success',
   data = {},
   result = 1,
 }) => {
-  res.status(statusCode).send({ result, msg, data })
+  res.status(statusCode).send({ result, message, data })
 }

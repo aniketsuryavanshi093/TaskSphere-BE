@@ -13,6 +13,9 @@ const ProjectSchema = new Schema(
             type: Schema.Types.ObjectId,
             ref: 'Organization',
         },
+        logoUrl: {
+            type: String,
+        },
         description: {
             type: String,
         },
