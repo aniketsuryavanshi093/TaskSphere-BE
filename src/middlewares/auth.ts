@@ -11,7 +11,6 @@ export const userAuth = async (
     if (!req.headers.authorization) {
       throw new AppError('Unauthorized', 401)
     }
-
     const token = req.headers.authorization.split(' ')[1]
     const decode = await verifyToken(token)
     if (!decode) {

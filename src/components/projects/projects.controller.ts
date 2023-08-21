@@ -1,12 +1,8 @@
 /* eslint-disable prettier/prettier */
 import { Request, Response, NextFunction } from 'express'
 import AppError from '@utils/appError'
-import { generateToken } from '../../utils/jwt'
-import { getOrganization } from '@organization/organization.service'
-import Organization from '@organization/oragnization.model'
 import { handleResponse } from '@helpers/errorHandler'
-import { addMembertoProjectService, addProjectService } from './projects.services'
-import { Schema } from 'mongoose'
+import { addMembertoProjectService, addProjectService, getAllusersService } from './projects.services'
 
 export const AddProject = async (
     req: Request,
@@ -43,6 +39,30 @@ export const addMembertoProject = async (
         const result = await addMembertoProjectService(req.params.id, req.params.org)
         return handleResponse({
             res,
+            data: { ...result },
+        })
+    } catch (error: any) {
+        if (error.isJoi === true) {
+            error.statusCode = 422
+        }
+        next(error)
+    }
+}
+
+export const getAllusers = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void | Response> => {
+    try {
+        // check for role if there is organization and ticketadminitrator true
+        // if (req.user.role !== 'organization') {
+        //     throw new AppError('You are not authorized to access this route', 400)
+        // }
+        const result = await getAllusersService(req.params.org)
+        return handleResponse({
+            res,
+            message: 'successfully fetched all project users',
             data: { ...result },
         })
     } catch (error: any) {
