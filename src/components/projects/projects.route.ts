@@ -19,12 +19,11 @@
 // export default router
 import express from 'express'
 import { userAuth } from '@middlewares/auth'
-import { AddProject, addMembertoProject, getAllusers } from './projects.controller'
+import { AddProject, addMembertoProject } from './projects.controller'
 const router = express.Router()
 
 router.post('/createProject', userAuth, AddProject)
-router.get('/getAllusers/:org', userAuth, getAllusers)
-router.post('/addMember/:id/:org', userAuth, addMembertoProject)
+router.post('/addMember/:id/:project', userAuth, addMembertoProject)
 // router.post('/forgotPassword', forgetPassword)
 // router.post('/resetPassword/:token', resetPassword)
 

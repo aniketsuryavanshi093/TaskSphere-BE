@@ -1,10 +1,5 @@
-// import Cab from '../cab/cabModel'
-// import { TCab } from '../cab/types'
-import getDistanceFromLatLonInKm from '../../helpers/calDistance'
 import AppError from '../../utils/appError'
 import Organization from './oragnization.model'
-// import Booking from './oragnization.model'
-// import { AddressType, TBooking } from './types'
 
 export const createOrganization = async (input: any) => {
   const doc = await Organization.create(input)
