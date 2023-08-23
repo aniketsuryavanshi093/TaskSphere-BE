@@ -2,7 +2,7 @@
 import { Request, Response, NextFunction } from 'express'
 import AppError from '@utils/appError'
 import { handleResponse } from '@helpers/errorHandler'
-import { addMembertoProjectService, addProjectService, getAllusersService } from './projects.services'
+import { addMembertoProjectService, addProjectService, } from './projects.services'
 
 export const AddProject = async (
     req: Request,
@@ -49,26 +49,3 @@ export const addMembertoProject = async (
     }
 }
 
-export const getAllusers = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-): Promise<void | Response> => {
-    try {
-        // check for role if there is organization and ticketadminitrator true
-        // if (req.user.role !== 'organization') {
-        //     throw new AppError('You are not authorized to access this route', 400)
-        // }
-        const result = await getAllusersService(req.params.org)
-        return handleResponse({
-            res,
-            message: 'successfully fetched all project users',
-            data: { ...result },
-        })
-    } catch (error: any) {
-        if (error.isJoi === true) {
-            error.statusCode = 422
-        }
-        next(error)
-    }
-}

@@ -33,21 +33,12 @@ export const addMembertoProjectService = async (memberId: string, projectId: str
                 members: memberId
             }
         }, { upsert: true, new: true })
+        if (!response) {
+            throw new AppError('project Does not exists!', 400)
+        }
         return response?._doc
     } catch (error: any) {
         throw new AppError(error, 400)
     }
 }
 
-export const getAllusersService = async (projectId: string): Promise<projectTypes> => {
-    try {
-        const response = await Project.findById(projectId)
-            .populate({
-                path: 'members',
-            })
-            .select('members')
-        return response?._doc
-    } catch (error: any) {
-        throw new AppError(error, 400)
-    }
-}

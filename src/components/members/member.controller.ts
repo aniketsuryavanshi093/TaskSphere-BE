@@ -13,6 +13,8 @@ import {
   findAndUpdate,
   forgotPasswordToken,
   getMemeber,
+  getProjectAllusersService,
+  getorganizationAllusersService,
   resetPasswordService,
 } from '@members/member.service'
 import { generateToken } from '../../utils/jwt'
@@ -20,6 +22,7 @@ import sendEmail from '../../utils/email'
 import logger from '../../config/logger'
 import { getOrganization } from '@organization/organization.service'
 import Organization from '@organization/oragnization.model'
+import { handleResponse } from '@helpers/errorHandler'
 export const addMember = async (
   req: Request,
   res: Response,
@@ -60,44 +63,53 @@ export const addMember = async (
     next(error)
   }
 }
+export const getprojectAllusers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void | Response> => {
+  try {
+    // check for role if there is organization and ticketadminitrator true
+    // if (req.user.role !== 'organization') {
+    //     throw new AppError('You are not authorized to access this route', 400)
+    // }
+    const result = await getProjectAllusersService(req.params.project)
+    return handleResponse({
+      res,
+      message: 'successfully fetched all project users',
+      data: { ...result },
+    })
+  } catch (error: any) {
+    if (error.isJoi === true) {
+      error.statusCode = 422
+    }
+    next(error)
+  }
+}
+export const getorganizationAllusers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void | Response> => {
+  try {
+    // check for role if there is organization and ticketadminitrator true
+    // if (req.user.role !== 'organization') {
+    //     throw new AppError('You are not authorized to access this route', 400)
+    // }
+    const result = await getorganizationAllusersService(req.params.org)
+    return handleResponse({
+      res,
+      message: 'successfully fetched all organization users',
+      data: { ...result },
+    })
+  } catch (error: any) {
+    if (error.isJoi === true) {
+      error.statusCode = 422
+    }
+    next(error)
+  }
+}
 
-// export const loginUser = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ): Promise<void | Response> => {
-//   try {
-//     const data = await loginInput.validateAsync(req.body)
-//     const { email, password } = data
-//     const user = await findOneBy({ email })
-
-//     if (!user) {
-//       throw new AppError('Email is not registered!', 400)
-//     }
-
-//     const isValid = await user.comparePassword(password)
-
-//     if (!isValid) {
-//       throw new AppError('Incorrect password', 400)
-//     }
-
-//     const token = generateToken({
-//       _id: user._id,
-//       email: user.email,
-//       role: user.role!,
-//     })
-//     return res.status(200).json({
-//       satus: 'success',
-//       message: 'login successful',
-//       data: { id: user._id, token },
-//     })
-//   } catch (error: any) {
-//     if (error.isJoi === true) {
-//       error.statusCode = 422
-//     }
-//     next(error)
-//   }
-// }
 
 export const updateUser = async (
   req: Request,

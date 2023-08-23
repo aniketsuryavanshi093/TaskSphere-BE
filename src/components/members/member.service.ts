@@ -1,6 +1,9 @@
 import AppError from '@utils/appError'
 import { MemberInterface, memberInput } from './types'
 import Member from '@members/member.model'
+import Project from '@projects/projects.model'
+import { projectTypes } from '@projects/types'
+import Organization from '@organization/oragnization.model'
 
 export const createMember = async (
   input: memberInput
@@ -90,6 +93,37 @@ export const resetPasswordService = async (
     user.passwordResetExpired = null!
     const doc = await user.save()
     return doc ? true : false
+  } catch (error: any) {
+    throw new AppError(error, 400)
+  }
+}
+
+export const getProjectAllusersService = async (projectId: string): Promise<projectTypes> => {
+  try {
+    const response = await Project.findById(projectId)
+      .populate({
+        path: 'members',
+      })
+      .select('members')
+    if (response === null || response === undefined) {
+      throw new AppError('project Does not exists!', 400)
+    }
+    return response?._doc
+  } catch (error: any) {
+    throw new AppError(error, 400)
+  }
+}
+export const getorganizationAllusersService = async (orgId: string): Promise<projectTypes> => {
+  try {
+    const response = await Organization.findById(orgId)
+      .populate({
+        path: 'members',
+      })
+      .select('members')
+    if (response === null || response === undefined) {
+      throw new AppError('Organization Does not exists!', 400)
+    }
+    return response?._doc
   } catch (error: any) {
     throw new AppError(error, 400)
   }
