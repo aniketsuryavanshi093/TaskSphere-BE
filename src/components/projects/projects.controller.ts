@@ -32,10 +32,9 @@ export const addMembertoProject = async (
     next: NextFunction
 ): Promise<void | Response> => {
     try {
-        // check for role if there is organization and ticketadminitrator true
-        // if (req.user.role !== 'organization') {
-        //     throw new AppError('You are not authorized to access this route', 400)
-        // }
+        if (req.user.role !== 'organization') {
+            throw new AppError('You are not authorized to access this route', 400)
+        }
         const result = await addMembertoProjectService(req.params.id, req.params.org)
         return handleResponse({
             res,
