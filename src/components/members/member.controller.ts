@@ -17,7 +17,6 @@ import {
   getorganizationAllusersService,
   resetPasswordService,
 } from '@members/member.service'
-import { generateToken } from '../../utils/jwt'
 import sendEmail from '../../utils/email'
 import logger from '../../config/logger'
 import { getOrganization } from '@organization/organization.service'
