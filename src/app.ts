@@ -7,7 +7,7 @@ import errorHandler from './helpers/errorHandler'
 const app: Application = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
-// app.use(cors({ origin: true }))
+app.use(cors({ origin: true }))
 
 // loggin all the requests in middleware
 app.use(morgan('dev'))

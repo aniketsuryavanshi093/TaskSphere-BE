@@ -16,6 +16,19 @@ export const getOrganization = async (filter: any) => {
   }
 }
 
+
+export const getOrganizationProject = async (filter: any) => {
+  try {
+    const doc = await Organization.findById(filter).populate({
+      path: 'projects',
+    })
+      .select('projects')
+    return doc?._doc
+  } catch (error: any) {
+    throw new AppError(error, 400)
+  }
+}
+
 // // =========================== create boooking service ======================
 // export const createBookingService = async (
 //   bookedBy: string,

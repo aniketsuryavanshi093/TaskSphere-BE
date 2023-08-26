@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import AppError from '../../utils/appError'
-import { createOrganization, getOrganization } from './organization.service'
+import { getOrganizationProject, getOrganization } from './organization.service'
 // import { cabBokingInput, getNearByCabInput } from '../../helpers/validation'
 // import {
 //   bookCabService,
@@ -31,6 +31,25 @@ export const getOrganizationDetails = async (
   }
 }
 
+export const getAllorganizationsProject = async (
+  req: Request,
+  res: Response,
+  next: NextFunction): Promise<void | Response> => {
+  try {
+    if (req.user.role !== 'organization') {
+      throw new AppError('You are not authorized to access this route', 400)
+    }
+    const userId = req.user._id
+    const organization = await getOrganizationProject(userId)
+    return res.status(200).json({
+      status: 'success',
+      message: 'organization Projects details fetch successfully',
+      data: organization,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
 // // ======================================== create booking ================================
 // export const createBooking = async (
 //   req: Request,
