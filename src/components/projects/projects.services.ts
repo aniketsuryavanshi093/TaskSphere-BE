@@ -29,22 +29,28 @@ export const addProjectService = async (
   }
 }
 
-export const addMembertoProjectService = async (memberId: string, projectId: string): Promise<projectTypes> => {
-    try {
-        const response = await Project.findByIdAndUpdate(projectId, {
-            $addToSet: {
-                members: memberId
-            }
-        }, { upsert: true, new: true })
-        if (!response) {
-            throw new AppError('project Does not exists!', 400)
-        }
-        return response?._doc
-    } catch (error: any) {
-        throw new AppError(error, 400)
+export const addMembertoProjectService = async (
+  memberId: string,
+  projectId: string
+): Promise<projectTypes> => {
+  try {
+    const response = await Project.findByIdAndUpdate(
+      projectId,
+      {
+        $addToSet: {
+          members: memberId,
+        },
+      },
+      { upsert: true, new: true }
+    )
+    if (!response) {
+      throw new AppError('project Does not exists!', 400)
     }
+    return response?._doc
+  } catch (error: any) {
+    throw new AppError(error, 400)
+  }
 }
-
 
 export const getProjectService = async (query: any) => {
   logger.info('Inside get project service')
@@ -126,4 +132,3 @@ export const getProjectService = async (query: any) => {
 //     throw new AppError(error, 400)
 //   }
 // }
->>>>>>> Stashed changes
