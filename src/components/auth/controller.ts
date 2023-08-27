@@ -85,6 +85,9 @@ export const login = async (
       userName: user.userName!,
       name: user.name!,
       role: user.role!,
+      ticketAdministrator: user.ticketAdministrator
+        ? user.ticketAdministrator
+        : false,
     })
     delete user._doc.password
     delete user._doc.__v
