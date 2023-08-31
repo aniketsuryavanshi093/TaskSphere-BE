@@ -14,7 +14,7 @@ import { userAuth } from '@middlewares/auth'
 // } from './organization.controller'
 const router = express.Router()
 router.get('/', userAuth, getOrganizationDetails)
-router.get('/getAllProject', userAuth, getAllorganizationsProject)
+router.get('/getAllProject/:orgId', userAuth, getAllorganizationsProject)
 // router.post('/:cabId', userAuth, bookCabByid)
 // router.get('/', userAuth, getAllBookings)
 // router.get('/history', userAuth, getMyBookings)

@@ -19,17 +19,18 @@ const ProjectSchema = new Schema(
         description: {
             type: String,
         },
-        members: [{
-            type: Schema.Types.ObjectId,
-            required: false,
-            ref: 'Member',
-        }],
+        members: [
+            {
+                type: Schema.Types.ObjectId,
+                required: false,
+                ref: 'Member',
+            },
+        ],
     },
     {
         timestamps: true,
     }
 )
-
 
 const Project = db.model<projectTypes>('Project', ProjectSchema)
 export default Project

@@ -36,10 +36,10 @@ export const getAllorganizationsProject = async (
   res: Response,
   next: NextFunction): Promise<void | Response> => {
   try {
-    if (req.user.role !== 'organization') {
-      throw new AppError('You are not authorized to access this route', 400)
-    }
-    const userId = req.user._id
+    // if (req.user.role !== 'organization') {
+    //   throw new AppError('You are not authorized to access this route', 400)
+    // }
+    const userId = req.params.orgId
     const organization = await getOrganizationProject(userId)
     return res.status(200).json({
       status: 'success',
