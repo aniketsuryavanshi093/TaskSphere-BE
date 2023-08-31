@@ -47,10 +47,13 @@ const TicketSchema = new Schema(
     updatedBy: {
       type: String,
     },
-    attachments: {
-      type: Array,
-      default: [],
-    },
+    attachments: [
+      {
+        ext: { type: String },
+        name: { type: String },
+        url: { type: String },
+      },
+    ],
     isDeleted: {
       type: Boolean,
       default: false,

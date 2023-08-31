@@ -12,6 +12,10 @@ const memberSchema = new Schema(
       type: String,
       required: true,
     },
+    profilePic: {
+      type: String,
+      required: false,
+    },
     userName: {
       type: String,
       required: true,
