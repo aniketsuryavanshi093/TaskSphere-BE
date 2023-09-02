@@ -16,6 +16,7 @@
     "quotes": [2, "single", "avoid-escape"],
     "prettier/prettier": "error",
     "@typescript-eslint/no-non-null-assertion": "off",
-    "no-useless-catch": "off"
+    "no-useless-catch": "off",
+    "@typescript-eslint/no-non-null-asserted-optional-chain": "off"
   }
 }
