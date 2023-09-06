@@ -57,9 +57,9 @@ export const getAllTicket = async (
     console.log(strLimit)
     const searchText: string = search !== undefined ? search?.toString()! : ''
     const ticketStatus: string = status !== undefined ? status?.toString()! : ''
-    const forUser = isforUser !== 'true' ? false : true
-    const projectid: string | null =
-      projectId !== undefined ? projectId.toString() : null
+    const forUser = isforUser !== 'false' ? false : true
+    const projectid: number | null =
+      projectId !== undefined ? Number(projectId)! : null
     const userids = userIds !== undefined ? userIds.toString().split(',') : []
     const stDate: string = startDate !== undefined ? startDate?.toString() : ''
     const enDate: string = endDate

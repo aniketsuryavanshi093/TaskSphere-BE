@@ -1,7 +1,6 @@
 import logger from '@config/logger'
 import Ticket from './ticket.model'
 import { TicketInput } from './types'
-import mongoose from 'mongoose'
 
 export const createTicketService = async (data: Partial<TicketInput>) => {
   try {
@@ -29,11 +28,10 @@ export const getAllTicketService = async (
   logger.info('Insite get all ticket service')
   try {
     let condition: any = {}
-    console.log(projectId)
+
     if (projectId) {
-      condition.projectId = new mongoose.Types.ObjectId(projectId)
+      condition.projectId = projectId
     }
-    console.log(condition)
     if (search !== '') {
       condition.$or = [
         { title: { $regex: search, $options: 'i' } },
@@ -43,7 +41,6 @@ export const getAllTicketService = async (
     if (userId) {
       condition.assignedTo = userId
     }
-    console.log(condition)
     if (startDate !== '') {
       condition.createdAt = {
         $lte: new Date(new Date(endDate).getTime() + 60 * 60 * 24 * 1000 - 1),
