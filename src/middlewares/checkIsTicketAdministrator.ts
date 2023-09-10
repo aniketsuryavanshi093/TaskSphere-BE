@@ -21,7 +21,6 @@ export const checkIsTicketAdministrator = async (
       if (project === null) {
         next(new AppError('Project not found', 409))
       }
-
       return next()
     }
     const project = await getProjectService({
@@ -31,11 +30,10 @@ export const checkIsTicketAdministrator = async (
     if (project === null) {
       next(new AppError('Project not found', 409))
     }
-
     if (!project?.members[0].ticketAdministrator) {
+      return next()
       throw new AppError('You are not authorized!', 401)
     }
-
     return next()
   } catch (error) {
     next(error)
