@@ -41,7 +41,7 @@ export const addMembertoProjectService = async (
           members: memberId,
         },
       },
-      { upsert: true, new: true }
+      { new: true }
     )
     if (!response) {
       throw new AppError('project Does not exists!', 400)
@@ -62,6 +62,24 @@ export const getProjectService = async (query: any) => {
     throw error
   }
 }
+
+export const getprojectbyuserService = async (userid: any) => {
+  logger.info('Inside get project service')
+  try {
+    const data = await Project.find({
+      members: { $in: [userid] },
+    })
+    if (!data) {
+      throw new AppError('project Does not exists!', 400)
+    }
+    return data
+  } catch (error) {
+    logger.error('----', error)
+    throw error
+  }
+}
+
+
 // export const findAndUpdate = async (
 //   filter: any,
 //   data: Partial<userInput>

@@ -15,16 +15,18 @@
 // router.patch('/update', userAuth, updateUser)
 // router.post('/forgotPassword', forgetPassword)
 // router.post('/resetPassword/:token', resetPassword)
-
-// export default router
 import express from 'express'
 import { userAuth } from '@middlewares/auth'
-import { AddProject, addMembertoProject } from './projects.controller'
+import {
+    AddProject,
+    addMembertoProject,
+    getprojectbyuser,
+} from './projects.controller'
+
 const router = express.Router()
 
 router.post('/createProject', userAuth, AddProject)
 router.post('/addMember/:id/:project', userAuth, addMembertoProject)
-// router.post('/forgotPassword', forgetPassword)
-// router.post('/resetPassword/:token', resetPassword)
+router.get('/getprojectsbyuser/:user', userAuth, getprojectbyuser)
 
 export default router

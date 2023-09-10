@@ -21,7 +21,6 @@ app.use(errorHandler)
 // 404
 app.use((req: Request, res: Response) => {
   const error = new Error('not found')
-
   return res.status(404).json({
     message: error.message,
   })

@@ -6,7 +6,6 @@ import {
   getAllTicketService,
   updateTicketService,
 } from './ticket.service'
-import AppError from '@utils/appError'
 
 export const createTicket = async (
   req: Request,
@@ -14,6 +13,8 @@ export const createTicket = async (
   next: NextFunction
 ) => {
   try {
+    console.log(req.body)
+
     const data: Partial<TicketInput> = req.body
 
     if (req.user.role === 'organization') {
