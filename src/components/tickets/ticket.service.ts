@@ -10,6 +10,24 @@ export const createTicketService = async (data: Partial<TicketInput>) => {
   }
 }
 
+export const updateTicketService = async (
+  data: Partial<TicketInput>,
+  ticketId: string
+) => {
+  try {
+    const ticket = await Ticket.findByIdAndUpdate(
+      ticketId,
+      {
+        ...data,
+      },
+      { new: true, upsert: true }
+    )
+    return ticket?._doc
+  } catch (error) {
+    throw error
+  }
+}
+
 export const getAllTicketService = async (
   offset,
   limit,
@@ -27,7 +45,7 @@ export const getAllTicketService = async (
 ) => {
   logger.info('Insite get all ticket service')
   try {
-    let condition: any = {}
+    const condition: any = {}
 
     if (projectId) {
       condition.projectId = projectId

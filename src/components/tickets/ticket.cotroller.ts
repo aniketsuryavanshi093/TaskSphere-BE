@@ -1,7 +1,11 @@
 import { NextFunction, Request, Response } from 'express'
 import { TicketInput } from './types'
 import { handleResponse } from '@helpers/errorHandler'
-import { createTicketService, getAllTicketService } from './ticket.service'
+import {
+  createTicketService,
+  getAllTicketService,
+  updateTicketService,
+} from './ticket.service'
 import AppError from '@utils/appError'
 
 export const createTicket = async (
@@ -24,6 +28,26 @@ export const createTicket = async (
       res,
       message: 'Ticket created',
       data: { ...result._doc },
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const updateTicket = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    console.log(req.body)
+    const data: Partial<TicketInput> = req.body
+    const { ticketId } = req.params
+    const result = await updateTicketService(data, ticketId)
+    return handleResponse({
+      res,
+      message: 'Ticket Updated',
+      data: result,
     })
   } catch (error) {
     next(error)
@@ -54,7 +78,7 @@ export const getAllTicket = async (
     // projectID , isforUser , date , priority , status , userIds (latest Data),search
     const strOffset: string = offset ? offset.toString() : '0'
     const strLimit: string = limit ? limit.toString() : '0'
-    console.log(strLimit)
+    console.log(req.user)
     const searchText: string = search !== undefined ? search?.toString()! : ''
     const ticketStatus: string = status !== undefined ? status?.toString()! : ''
     const forUser = isforUser !== 'false' ? false : true
