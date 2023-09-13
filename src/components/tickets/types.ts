@@ -9,6 +9,7 @@ export interface TicketInput {
   createdBy: string
   createdByOrg: string
   assignedTo: string
+  ticketTag: string
   updatedBy: string
   attachments: string[]
 }

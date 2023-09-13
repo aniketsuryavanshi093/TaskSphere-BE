@@ -10,6 +10,10 @@ const TicketSchema = new Schema(
       type: String,
       required: true,
     },
+    ticketTag: {
+      type: String,
+      required: false,
+    },
     label: {
       type: String,
       required: true,

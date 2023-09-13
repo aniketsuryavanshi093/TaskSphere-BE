@@ -2,9 +2,13 @@ import logger from '@config/logger'
 import Ticket from './ticket.model'
 import { TicketInput } from './types'
 import mongoose from 'mongoose'
+import Project from '@projects/projects.model'
 
 export const createTicketService = async (data: Partial<TicketInput>) => {
   try {
+    await Project.findByIdAndUpdate(data.projectId, {
+      $inc: { ticketsCount: 1 },
+    })
     return await Ticket.create(data)
   } catch (error) {
     throw error

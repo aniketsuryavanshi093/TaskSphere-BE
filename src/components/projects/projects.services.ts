@@ -78,6 +78,24 @@ export const getprojectbyuserService = async (userid: any) => {
     throw error
   }
 }
+export const getprojectService = async (projectid: string, count?: boolean) => {
+  logger.info('Inside get project service')
+  try {
+    let data: any
+    if (!count) {
+      data = await Project.findById(projectid)
+    } else {
+      data = await Project.findById(projectid).select('ticketsCount')
+    }
+    if (!data) {
+      throw new AppError('project Does not exists!', 400)
+    }
+    return data
+  } catch (error) {
+    logger.error('----', error)
+    throw error
+  }
+}
 
 
 // export const findAndUpdate = async (

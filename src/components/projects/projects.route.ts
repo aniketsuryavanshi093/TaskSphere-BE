@@ -21,6 +21,7 @@ import {
     AddProject,
     addMembertoProject,
     getprojectbyuser,
+    getproject
 } from './projects.controller'
 
 const router = express.Router()
@@ -28,5 +29,6 @@ const router = express.Router()
 router.post('/createProject', userAuth, AddProject)
 router.post('/addMember/:id/:project', userAuth, addMembertoProject)
 router.get('/getprojectsbyuser/:user', userAuth, getprojectbyuser)
+router.get('/getprojects/:project', userAuth, getproject)
 
 export default router
