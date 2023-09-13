@@ -13,10 +13,7 @@ export const createTicket = async (
   next: NextFunction
 ) => {
   try {
-    console.log(req.body)
-
     const data: Partial<TicketInput> = req.body
-
     if (req.user.role === 'organization') {
       data.createdByOrg = req.user._id
     } else {
@@ -41,7 +38,6 @@ export const updateTicket = async (
   next: NextFunction
 ) => {
   try {
-    console.log(req.body)
     const data: Partial<TicketInput> = req.body
     const { ticketId } = req.params
     const result = await updateTicketService(data, ticketId)
@@ -79,7 +75,6 @@ export const getAllTicket = async (
     // projectID , isforUser , date , priority , status , userIds (latest Data),search
     const strOffset: string = offset ? offset.toString() : '0'
     const strLimit: string = limit ? limit.toString() : '0'
-    console.log(req.user)
     const searchText: string = search !== undefined ? search?.toString()! : ''
     const ticketStatus: string = status !== undefined ? status?.toString()! : ''
     const forUser = isforUser !== 'true' ? false : true

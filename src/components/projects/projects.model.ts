@@ -9,6 +9,7 @@ const ProjectSchema = new Schema(
             type: String,
             required: true,
         },
+        ticketsCount: { type: Number, default: 0 },
         organizationId: {
             type: Schema.Types.ObjectId,
             ref: 'Organization',

@@ -2,7 +2,7 @@
 import { Request, Response, NextFunction } from 'express'
 import AppError from '@utils/appError'
 import { handleResponse } from '@helpers/errorHandler'
-import { addMembertoProjectService, addProjectService, getprojectbyuserService } from './projects.services'
+import { addMembertoProjectService, addProjectService, getprojectbyuserService, getprojectService } from './projects.services'
 
 export const AddProject = async (
     req: Request,
@@ -64,6 +64,26 @@ export const getprojectbyuser = async (
             status: 'success',
             message: 'Project users details fetch successfully',
             data: { projects: userprojects },
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+export const getproject = async (
+    req: Request,
+    res: Response,
+    next: NextFunction): Promise<void | Response> => {
+    try {
+        // if (req.user.role !== 'organization') {
+        //   throw new AppError('You are not authorized to access this route', 400)
+        // }
+        const projectId = req.params.project
+        const count = req.query.count
+        const project = await getprojectService(projectId, count)
+        return res.status(200).json({
+            status: 'success',
+            message: 'Project detail fetch successfully',
+            data: { project: project },
         })
     } catch (error) {
         next(error)
