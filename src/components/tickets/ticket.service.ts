@@ -61,7 +61,7 @@ export const getAllTicketService = async (
       ]
     }
     if (userId) {
-      condition.assignedTo = userId
+      condition.assignedTo = new mongoose.Types.ObjectId(userId)
     }
     if (startDate !== '') {
       condition.createdAt = {
