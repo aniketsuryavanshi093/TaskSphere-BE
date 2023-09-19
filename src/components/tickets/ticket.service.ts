@@ -1,6 +1,6 @@
 import logger from '@config/logger'
 import Ticket from './ticket.model'
-import { TicketInput } from './types'
+import { TicketInput, comment } from './types'
 import mongoose from 'mongoose'
 import Project from '@projects/projects.model'
 
@@ -15,7 +15,49 @@ export const createTicketService = async (data: Partial<TicketInput>) => {
   }
 }
 
+export const addReplytocommentService = async (
+  data: Partial<comment>,
+  ticketId: string,
+  commentId: string
+) => {
+  try {
+    const ticket = await Ticket.findOneAndUpdate(
+      {
+        _id: ticketId,
+        'comments._id': commentId,
+      },
+      {
+        $addToSet: {
+          'comments.$.replies': data,
+        },
+        $inc: { commentsCount: 1 },
+      },
+      { new: true, upsert: true }
+    )
+    return ticket?._doc
+  } catch (error) {
+    throw error
+  }
+}
+
 export const updateTicketService = async (
+  data: Partial<TicketInput>,
+  ticketId: string
+) => {
+  try {
+    const ticket = await Ticket.findOneAndUpdate(
+      ticketId,
+      {
+        ...data,
+      },
+      { new: true, upsert: true }
+    )
+    return ticket?._doc
+  } catch (error) {
+    throw error
+  }
+}
+export const createCommentService = async (
   data: Partial<TicketInput>,
   ticketId: string
 ) => {
@@ -23,10 +65,33 @@ export const updateTicketService = async (
     const ticket = await Ticket.findByIdAndUpdate(
       ticketId,
       {
-        ...data,
+        $inc: { commentsCount: 1 },
+        $addToSet: {
+          comments: { ...data, replies: [] },
+        },
       },
       { new: true, upsert: true }
     )
+    return ticket?._doc
+  } catch (error) {
+    throw error
+  }
+}
+
+export const getallCommentsService = async (ticketId: string) => {
+  try {
+    const ticket = await Ticket.findById(ticketId, 'comments').populate([
+      {
+        path: 'comments.author',
+        model: 'Member',
+        select: 'userName name profilePic',
+      },
+      {
+        path: 'comments.replies.author',
+        select: 'userName name profilePic',
+        model: 'Member',
+      },
+    ])
     return ticket?._doc
   } catch (error) {
     throw error
@@ -63,14 +128,12 @@ export const getAllTicketService = async (
     if (userId) {
       condition.assignedTo = new mongoose.Types.ObjectId(userId)
     }
-    console.log(condition)
     if (startDate !== '') {
       condition.createdAt = {
         $lte: new Date(new Date(endDate).getTime() + 60 * 60 * 24 * 1000 - 1),
         $gte: new Date(startDate),
       }
     }
-
     if (status !== '') {
       condition.status = status
     }
@@ -85,7 +148,6 @@ export const getAllTicketService = async (
         $in: userIds,
       }
     }
-
     const count = await Ticket.countDocuments(condition)
     const pipeline: any = [
       {
@@ -105,6 +167,11 @@ export const getAllTicketService = async (
           localField: 'projectId',
           foreignField: '_id',
           as: 'project',
+        },
+      },
+      {
+        $project: {
+          comments: 0, // Exclude the "comments" field
         },
       },
       {

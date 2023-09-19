@@ -1,4 +1,12 @@
 import { Document } from 'mongoose'
+
+export type comment = {
+  text: string
+  author: string
+  createdAt: string
+  replies: comment[]
+}
+
 export interface TicketInput {
   title: string
   label: 'BE' | 'FE' | 'QA'
@@ -8,7 +16,9 @@ export interface TicketInput {
   description: string
   createdBy: string
   createdByOrg: string
+  commentsCount: number
   assignedTo: string
+  comments: comment[]
   ticketTag: string
   updatedBy: string
   attachments: string[]

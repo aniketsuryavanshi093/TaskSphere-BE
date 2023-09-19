@@ -1,10 +1,13 @@
 import { NextFunction, Request, Response } from 'express'
-import { TicketInput } from './types'
+import { TicketInput, comment } from './types'
 import { handleResponse } from '@helpers/errorHandler'
 import {
+  addReplytocommentService,
   createTicketService,
   getAllTicketService,
+  getallCommentsService,
   updateTicketService,
+  createCommentService,
 } from './ticket.service'
 
 export const createTicket = async (
@@ -14,18 +17,48 @@ export const createTicket = async (
 ) => {
   try {
     const data: Partial<TicketInput> = req.body
-    if (req.user.role === 'organization') {
-      data.createdByOrg = req.user._id
-    } else {
-      data.createdBy = req.user._id
-    }
-    data.updatedBy = req.user._id
-
     const result = await createTicketService(data)
     return handleResponse({
       res,
       message: 'Ticket created',
       data: { ...result._doc },
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const getComments = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { ticketId } = req.params
+    const result = await getallCommentsService(ticketId)
+    return handleResponse({
+      res,
+      message: 'Comments fetched',
+      data: result,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const addReplytocomment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const data: Partial<comment> = req.body
+    const { ticketId, commentId } = req.params
+    const result = await addReplytocommentService(data, ticketId, commentId)
+    return handleResponse({
+      res,
+      message: 'comment replied successfully',
+      data: result,
     })
   } catch (error) {
     next(error)
@@ -44,6 +77,25 @@ export const updateTicket = async (
     return handleResponse({
       res,
       message: 'Ticket Updated',
+      data: result,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const createComment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const data: Partial<comment> = req.body
+    const { ticketId } = req.params
+    const result = await createCommentService(data, ticketId)
+    return handleResponse({
+      res,
+      message: 'Comment created',
       data: result,
     })
   } catch (error) {

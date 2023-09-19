@@ -58,6 +58,39 @@ const TicketSchema = new Schema(
         url: { type: String },
       },
     ],
+    commentsCount: { type: Number, default: 0, required: false },
+    comments: [
+      {
+        text: {
+          type: String,
+          required: true,
+        },
+        author: {
+          type: Schema.Types.ObjectId,
+          ref: 'Member', // Reference to the user who posted the comment
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+        replies: [
+          {
+            text: {
+              type: String,
+              required: true,
+            },
+            author: {
+              type: Schema.Types.ObjectId,
+              ref: 'Member', // Reference to the user who posted the reply
+            },
+            createdAt: {
+              type: Date,
+              default: Date.now,
+            },
+          },
+        ],
+      },
+    ],
     isDeleted: {
       type: Boolean,
       default: false,
@@ -67,6 +100,6 @@ const TicketSchema = new Schema(
     timestamps: true,
   }
 )
-
+TicketSchema.index({ 'comments.createdAt': 1 })
 const Ticket = db.model<TicketInterface>('Ticket', TicketSchema)
 export default Ticket

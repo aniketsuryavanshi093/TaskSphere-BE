@@ -6,7 +6,6 @@ import AppError from '@utils/appError'
 import Project from './projects.model'
 import { projectTypes } from './types'
 import Organization from '@organization/oragnization.model'
-import { Schema } from 'mongoose'
 import logger from '@config/logger'
 
 export const addProjectService = async (
@@ -17,7 +16,7 @@ export const addProjectService = async (
     if (isprojectExists) {
       throw new AppError('Project already exists with same title!', 400)
     }
-    const doc = await Project.create(input)
+    const doc = await Project.create({ ...input })
     await Organization.findByIdAndUpdate(input.organizationId, {
       $push: {
         projects: doc,
@@ -51,7 +50,6 @@ export const addMembertoProjectService = async (
     throw new AppError(error, 400)
   }
 }
-
 export const getProjectService = async (query: any) => {
   logger.info('Inside get project service')
   try {
@@ -83,7 +81,12 @@ export const getprojectService = async (projectid: string, count?: boolean) => {
   try {
     let data: any
     if (!count) {
-      data = await Project.findById(projectid)
+      data = await Project.findById(projectid)?.populate([
+        {
+          path: 'members',
+        },
+        { path: 'organizationId' },
+      ])
     } else {
       data = await Project.findById(projectid).select('ticketsCount')
     }
@@ -96,7 +99,6 @@ export const getprojectService = async (projectid: string, count?: boolean) => {
     throw error
   }
 }
-
 
 // export const findAndUpdate = async (
 //   filter: any,

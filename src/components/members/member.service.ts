@@ -98,13 +98,18 @@ export const resetPasswordService = async (
   }
 }
 
-export const getProjectAllusersService = async (projectId: string): Promise<projectTypes> => {
+export const getProjectAllusersService = async (
+  projectId: string
+): Promise<projectTypes> => {
   try {
     const response = await Project.findById(projectId)
-      .populate({
-        path: 'members',
-      })
-      .select('members')
+      .populate([
+        {
+          path: 'members',
+        },
+        { path: 'organizationId' },
+      ])
+      .select('members organizationId')
     if (response === null || response === undefined) {
       throw new AppError('project Does not exists!', 400)
     }
@@ -113,7 +118,9 @@ export const getProjectAllusersService = async (projectId: string): Promise<proj
     throw new AppError(error, 400)
   }
 }
-export const getorganizationAllusersService = async (orgId: string): Promise<projectTypes> => {
+export const getorganizationAllusersService = async (
+  orgId: string
+): Promise<projectTypes> => {
   try {
     const response = await Organization.findById(orgId)
       .populate({
