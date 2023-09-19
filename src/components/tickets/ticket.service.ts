@@ -1,6 +1,6 @@
 import logger from '@config/logger'
 import Ticket from './ticket.model'
-import { TicketInput } from './types'
+import { TicketInput, comment } from './types'
 import mongoose from 'mongoose'
 import Project from '@projects/projects.model'
 
@@ -10,6 +10,27 @@ export const createTicketService = async (data: Partial<TicketInput>) => {
       $inc: { ticketsCount: 1 },
     })
     return await Ticket.create(data)
+  } catch (error) {
+    throw error
+  }
+}
+
+export const addReplytocommentService = async (
+  data: Partial<comment>,
+  ticketId: string,
+  commentId: string
+) => {
+  try {
+    const ticket = await Ticket.findByIdAndUpdate(
+      ticketId,
+      {
+        $addToSet: {
+          'comments$[comment].replies': data,
+        },
+      },
+      { new: true, upsert: true, arrayFilters: [{ 'comment._id': commentId }] }
+    )
+    return ticket?._doc
   } catch (error) {
     throw error
   }
@@ -27,6 +48,34 @@ export const updateTicketService = async (
       },
       { new: true, upsert: true }
     )
+    return ticket?._doc
+  } catch (error) {
+    throw error
+  }
+}
+export const createCommentService = async (
+  data: Partial<comment>,
+  ticketId: string
+) => {
+  try {
+    const ticket = await Ticket.findByIdAndUpdate(
+      ticketId,
+      {
+        $addToSet: {
+          comments: data,
+        },
+      },
+      { new: true, upsert: true }
+    )
+    return ticket?._doc
+  } catch (error) {
+    throw error
+  }
+}
+
+export const getallCommentsService = async (ticketId: string) => {
+  try {
+    const ticket = await Ticket.findById(ticketId, 'comments')
     return ticket?._doc
   } catch (error) {
     throw error
@@ -83,8 +132,6 @@ export const getAllTicketService = async (
         $in: userIds,
       }
     }
-    console.log(condition)
-
     const count = await Ticket.countDocuments(condition)
     const pipeline: any = [
       {
@@ -104,6 +151,11 @@ export const getAllTicketService = async (
           localField: 'projectId',
           foreignField: '_id',
           as: 'project',
+        },
+      },
+      {
+        $project: {
+          comments: 0, // Exclude the "comments" field
         },
       },
       {
@@ -129,7 +181,6 @@ export const getAllTicketService = async (
       })
     }
     const list = await Ticket.aggregate(pipeline)
-    console.log(list)
     return { list, count }
   } catch (error) {
     throw error
