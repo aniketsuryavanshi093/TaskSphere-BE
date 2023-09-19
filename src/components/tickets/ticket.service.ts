@@ -63,14 +63,12 @@ export const getAllTicketService = async (
     if (userId) {
       condition.assignedTo = userId
     }
-    console.log(condition)
     if (startDate !== '') {
       condition.createdAt = {
         $lte: new Date(new Date(endDate).getTime() + 60 * 60 * 24 * 1000 - 1),
         $gte: new Date(startDate),
       }
     }
-
     if (status !== '') {
       condition.status = status
     }
@@ -85,6 +83,7 @@ export const getAllTicketService = async (
         $in: userIds,
       }
     }
+    console.log(condition)
 
     const count = await Ticket.countDocuments(condition)
     const pipeline: any = [
@@ -130,6 +129,7 @@ export const getAllTicketService = async (
       })
     }
     const list = await Ticket.aggregate(pipeline)
+    console.log(list)
     return { list, count }
   } catch (error) {
     throw error

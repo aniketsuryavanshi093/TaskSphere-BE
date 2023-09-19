@@ -79,7 +79,7 @@ export const getproject = async (
         // }
         const projectId = req.params.project
         const count = req.query.count
-        const project = await getprojectService(projectId, count)
+        const project = await getprojectService(projectId, !!count)
         return res.status(200).json({
             status: 'success',
             message: 'Project detail fetch successfully',
