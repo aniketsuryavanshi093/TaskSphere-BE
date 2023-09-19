@@ -18,6 +18,6 @@ router.get('/allTickets', getAllTicket)
 // comments
 router.post('/comments/:ticketId', createComment)
 router.get('/comments/:ticketId', getComments)
-router.get('/reply/:ticketId/:commentId', addReplytocomment)
+router.post('/reply/:ticketId/:commentId', addReplytocomment)
 
 export default router

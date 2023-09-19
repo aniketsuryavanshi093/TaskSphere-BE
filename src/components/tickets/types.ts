@@ -4,7 +4,7 @@ export type comment = {
   text: string
   author: string
   createdAt: string
-  replies: comment
+  replies: comment[]
 }
 
 export interface TicketInput {

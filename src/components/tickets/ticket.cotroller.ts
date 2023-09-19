@@ -7,6 +7,7 @@ import {
   getAllTicketService,
   getallCommentsService,
   updateTicketService,
+  createCommentService,
 } from './ticket.service'
 
 export const createTicket = async (
@@ -89,7 +90,7 @@ export const createComment = async (
   next: NextFunction
 ) => {
   try {
-    const data: Partial<TicketInput> = req.body
+    const data: Partial<comment> = req.body
     const { ticketId } = req.params
     const result = await createCommentService(data, ticketId)
     return handleResponse({

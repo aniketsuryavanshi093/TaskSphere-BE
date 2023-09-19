@@ -21,14 +21,18 @@ export const addReplytocommentService = async (
   commentId: string
 ) => {
   try {
-    const ticket = await Ticket.findByIdAndUpdate(
-      ticketId,
+    const ticket = await Ticket.findOneAndUpdate(
+      {
+        _id: ticketId,
+        'comments._id': commentId,
+      },
       {
         $addToSet: {
-          'comments$[comment].replies': data,
+          'comments.$.replies': data,
         },
+        $inc: { commentsCount: 1 },
       },
-      { new: true, upsert: true, arrayFilters: [{ 'comment._id': commentId }] }
+      { new: true, upsert: true }
     )
     return ticket?._doc
   } catch (error) {
@@ -41,7 +45,7 @@ export const updateTicketService = async (
   ticketId: string
 ) => {
   try {
-    const ticket = await Ticket.findByIdAndUpdate(
+    const ticket = await Ticket.findOneAndUpdate(
       ticketId,
       {
         ...data,
@@ -54,15 +58,16 @@ export const updateTicketService = async (
   }
 }
 export const createCommentService = async (
-  data: Partial<comment>,
+  data: Partial<TicketInput>,
   ticketId: string
 ) => {
   try {
     const ticket = await Ticket.findByIdAndUpdate(
       ticketId,
       {
+        $inc: { commentsCount: 1 },
         $addToSet: {
-          comments: data,
+          comments: { ...data, replies: [] },
         },
       },
       { new: true, upsert: true }
@@ -75,7 +80,18 @@ export const createCommentService = async (
 
 export const getallCommentsService = async (ticketId: string) => {
   try {
-    const ticket = await Ticket.findById(ticketId, 'comments')
+    const ticket = await Ticket.findById(ticketId, 'comments').populate([
+      {
+        path: 'comments.author',
+        model: 'Member',
+        select: 'userName name profilePic',
+      },
+      {
+        path: 'comments.replies.author',
+        select: 'userName name profilePic',
+        model: 'Member',
+      },
+    ])
     return ticket?._doc
   } catch (error) {
     throw error
