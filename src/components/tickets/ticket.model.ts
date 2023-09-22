@@ -69,6 +69,10 @@ const TicketSchema = new Schema(
           type: Schema.Types.ObjectId,
           ref: 'Member', // Reference to the user who posted the comment
         },
+        orgMember: {
+          type: Schema.Types.ObjectId,
+          ref: 'Member',
+        },
         createdAt: {
           type: Date,
           default: Date.now,
@@ -78,6 +82,10 @@ const TicketSchema = new Schema(
             text: {
               type: String,
               required: true,
+            },
+            orgMember: {
+              type: Schema.Types.ObjectId,
+              ref: 'Member',
             },
             author: {
               type: Schema.Types.ObjectId,

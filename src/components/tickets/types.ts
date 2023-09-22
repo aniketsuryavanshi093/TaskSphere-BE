@@ -5,6 +5,7 @@ export type comment = {
   author: string
   createdAt: string
   replies: comment[]
+  orgMember: string
 }
 
 export interface TicketInput {

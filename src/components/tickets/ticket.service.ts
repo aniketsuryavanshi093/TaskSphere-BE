@@ -87,6 +87,16 @@ export const getallCommentsService = async (ticketId: string) => {
         select: 'userName name profilePic',
       },
       {
+        path: 'comments.orgMember',
+        model: 'Organization',
+        select: 'userName name profilePic',
+      },
+      {
+        path: 'comments.replies.orgMember',
+        model: 'Organization',
+        select: 'userName name profilePic',
+      },
+      {
         path: 'comments.replies.author',
         select: 'userName name profilePic',
         model: 'Member',
