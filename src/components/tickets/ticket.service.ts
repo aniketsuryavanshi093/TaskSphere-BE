@@ -3,6 +3,7 @@ import Ticket from './ticket.model'
 import { TicketInput, comment } from './types'
 import mongoose from 'mongoose'
 import Project from '@projects/projects.model'
+import Comment from './comments.model'
 
 export const createTicketService = async (data: Partial<TicketInput>) => {
   try {
@@ -21,18 +22,22 @@ export const addReplytocommentService = async (
   commentId: string
 ) => {
   try {
-    const ticket = await Ticket.findOneAndUpdate(
-      {
-        _id: ticketId,
-        'comments._id': commentId,
-      },
+    const ticket = await Comment.findByIdAndUpdate(
+      commentId,
       {
         $addToSet: {
-          'comments.$.replies': data,
+          replies: data,
         },
         $inc: { commentsCount: 1 },
       },
       { new: true, upsert: true }
+    )
+    await Ticket.findByIdAndUpdate(
+      ticketId,
+      {
+        $inc: { commentsCount: 1 },
+      },
+      { new: true }
     )
     return ticket?._doc
   } catch (error) {
@@ -62,47 +67,72 @@ export const createCommentService = async (
   ticketId: string
 ) => {
   try {
-    const ticket = await Ticket.findByIdAndUpdate(
+    // Create a new Comment document
+    const comment = await Comment.create({ ...data, replies: [] })
+    console.log(comment)
+
+    // Find and update the corresponding Ticket document
+    const updatedTicket = await Ticket.findByIdAndUpdate(
       ticketId,
       {
         $inc: { commentsCount: 1 },
         $addToSet: {
-          comments: { ...data, replies: [] },
-        },
+          comments: new mongoose.Types.ObjectId(comment?._doc?._id),
+        }, // Add the comment's ID to the Ticket's comments array
       },
-      { new: true, upsert: true }
+      { new: true }
     )
-    return ticket?._doc
+
+    if (!updatedTicket) {
+      // Handle the case where the ticket is not found
+      return null
+    }
+
+    return comment
   } catch (error) {
     throw error
   }
 }
 
-export const getallCommentsService = async (ticketId: string) => {
+export const getPaginatedCommentsService = async (
+  ticketId: string,
+  pageNumber: number,
+  pageSize: number
+) => {
   try {
-    const ticket = await Ticket.findById(ticketId, 'comments').populate([
+    const skipCount = (pageNumber - 1) * pageSize
+
+    // Use aggregation to retrieve paginated comments and total comment count
+    const result = await Ticket.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(ticketId) } },
       {
-        path: 'comments.author',
-        model: 'Member',
-        select: 'userName name profilePic',
+        $project: {
+          comments: 1,
+          totalCommentCount: { $size: '$comments' },
+        },
       },
       {
-        path: 'comments.orgMember',
-        model: 'Organization',
-        select: 'userName name profilePic',
-      },
-      {
-        path: 'comments.replies.orgMember',
-        model: 'Organization',
-        select: 'userName name profilePic',
-      },
-      {
-        path: 'comments.replies.author',
-        select: 'userName name profilePic',
-        model: 'Member',
+        $project: {
+          totalCommentCount: 1,
+          comments: {
+            $slice: ['$comments', skipCount, pageSize],
+          },
+        },
       },
     ])
-    return ticket?._doc
+
+    if (!result || result.length === 0) {
+      // Handle the case where the ticket is not found
+      return null
+    }
+    const { comments, totalCommentCount } = result[0]
+    return {
+      comments,
+      totalCommentCount,
+      currentPage: pageNumber,
+      totalPages: Math.ceil(totalCommentCount / pageSize),
+      itemsPerPage: pageSize,
+    }
   } catch (error) {
     throw error
   }

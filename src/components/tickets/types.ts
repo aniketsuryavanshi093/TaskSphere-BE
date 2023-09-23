@@ -28,3 +28,6 @@ export interface TicketInput {
 export interface TicketInterface extends TicketInput, Document {
   isDeleted: boolean
 }
+export interface CommentInterface extends comment, Document {
+  isDeleted: boolean
+}

@@ -5,7 +5,7 @@ import {
   addReplytocommentService,
   createTicketService,
   getAllTicketService,
-  getallCommentsService,
+  getPaginatedCommentsService,
   updateTicketService,
   createCommentService,
 } from './ticket.service'
@@ -35,7 +35,12 @@ export const getComments = async (
 ) => {
   try {
     const { ticketId } = req.params
-    const result = await getallCommentsService(ticketId)
+    const { pageNumber, pageSize } = req.query
+    const result = await getPaginatedCommentsService(
+      ticketId,
+      parseInt(pageNumber),
+      parseInt(pageSize)
+    )
     return handleResponse({
       res,
       message: 'Comments fetched',
