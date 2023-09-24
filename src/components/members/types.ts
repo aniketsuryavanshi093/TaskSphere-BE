@@ -1,13 +1,15 @@
 import { Document } from 'mongoose'
-export interface userInput {
+export interface memberInput {
   name: string
   email: string
   password: string
-  phoneNo: string
   role?: string
+  userName: string
+  ticketAdministrator: boolean
+  organizationId: string
 }
 
-export interface TUser extends userInput, Document {
+export interface MemberInterface extends memberInput, Document {
   isDeleted: boolean
   passwordResetToken: string
   passwordResetExpired: Date

@@ -1,16 +1,10 @@
+import { memberInput } from '@members/types'
 import { Document } from 'mongoose'
-export interface userInput {
-  name: string
-  email: string
-  password: string
-  phoneNo: string
-  role?: string
-}
-
-export interface TUser extends userInput, Document {
-  isDeleted: boolean
-  passwordResetToken: string
-  passwordResetExpired: Date
-  comparePassword: (password: string) => boolean
-  createPasswordResetToken: () => string
+export interface projectTypes extends Document {
+  title: string
+  members: memberInput[]
+  description: string
+  tasks: any
+  logoUrl: string
+  organizationId: string
 }

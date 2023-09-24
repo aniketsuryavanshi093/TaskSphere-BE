@@ -9,42 +9,52 @@ import {
   updateUserInput,
 } from '../../helpers/validation'
 import {
-  create,
+  createMember,
   findAndUpdate,
-  findOneBy,
   forgotPasswordToken,
+  getMemeber,
+  getProjectAllusersService,
+  getorganizationAllusersService,
   resetPasswordService,
 } from '@members/member.service'
-import { GenerateToken } from '../../utils/jwt'
 import sendEmail from '../../utils/email'
 import logger from '../../config/logger'
-export const registerUser = async (
+import { getOrganization } from '@organization/organization.service'
+import Organization from '@organization/oragnization.model'
+import { handleResponse } from '@helpers/errorHandler'
+export const addMember = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void | Response> => {
   try {
-    //   validate req.body for register
-    const data = await registerInput.validateAsync(req.body)
-    // check email is already registered?
-    const isExist = await findOneBy({ email: data.email })
-    if (isExist) {
-      throw new AppError('Email is already registered', 409)
-    }
+    const { email, userName } = req.body
     // check for role admin
-    if (data.role === 'admin') {
-      const checkAdmin = await findOneBy({ role: 'admin' })
-      if (checkAdmin) {
-        throw new AppError(
-          'Admin is already exist please login as a user or driver',
-          400
-        )
-      }
+    if (req.user.role !== 'organization') {
+      throw new AppError('You are not authorized to access this route', 400)
     }
-    const doc = await create(data)
+    const data = req.body
+    data.organizationId = req.user._id
+    const isMemberExist = await getMemeber({
+      $or: [{ email }, { userName }],
+    })
+    if (isMemberExist) {
+      throw new AppError('Email or user name is already registered', 409)
+    }
+    // check for organization is created with same
+    const isExist = await getOrganization({
+      $or: [{ email }, { userName }],
+    })
+    if (isExist) {
+      throw new AppError('Email or user name is already registered', 409)
+    }
+    const doc = await createMember(data)
+    await Organization.findByIdAndUpdate(doc?.organizationId, {
+      $push: { members: doc?._id },
+    })
     return res
       .status(200)
-      .json({ status: 'success', message: 'Registration success', data: doc })
+      .json({ status: 'success', message: 'Member added', data: doc })
   } catch (error: any) {
     if (error.isJoi === true) {
       error.statusCode = 422
@@ -52,36 +62,21 @@ export const registerUser = async (
     next(error)
   }
 }
-
-export const loginUser = async (
+export const getprojectAllusers = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void | Response> => {
   try {
-    const data = await loginInput.validateAsync(req.body)
-    const { email, password } = data
-    const user = await findOneBy({ email })
-
-    if (!user) {
-      throw new AppError('Email is not registered!', 400)
-    }
-
-    const isValid = await user.comparePassword(password)
-
-    if (!isValid) {
-      throw new AppError('Incorrect password', 400)
-    }
-
-    const token = GenerateToken({
-      _id: user._id,
-      email: user.email,
-      role: user.role!,
-    })
-    return res.status(200).json({
-      satus: 'success',
-      message: 'login successful',
-      data: { id: user._id, token },
+    // check for role if there is organization and ticketadminitrator true
+    // if (req.user.role !== 'organization') {
+    //     throw new AppError('You are not authorized to access this route', 400)
+    // }
+    const result = await getProjectAllusersService(req.params.project)
+    return handleResponse({
+      res,
+      message: 'successfully fetched all project users',
+      data: { ...result },
     })
   } catch (error: any) {
     if (error.isJoi === true) {
@@ -90,6 +85,30 @@ export const loginUser = async (
     next(error)
   }
 }
+export const getorganizationAllusers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void | Response> => {
+  try {
+    // check for role if there is organization and ticketadminitrator true
+    // if (req.user.role !== 'organization') {
+    //     throw new AppError('You are not authorized to access this route', 400)
+    // }
+    const result = await getorganizationAllusersService(req.params.org)
+    return handleResponse({
+      res,
+      message: 'successfully fetched all organization users',
+      data: { ...result },
+    })
+  } catch (error: any) {
+    if (error.isJoi === true) {
+      error.statusCode = 422
+    }
+    next(error)
+  }
+}
+
 
 export const updateUser = async (
   req: Request,

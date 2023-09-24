@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import bcrypt from 'bcrypt'
 import crypto from 'crypto'
-import { TUser } from './types'
+import { MemberInterface } from './types'
 import db from '../../connections/masterDB'
 
 const { Schema } = mongoose
@@ -9,6 +9,14 @@ const { Schema } = mongoose
 const memberSchema = new Schema(
   {
     name: {
+      type: String,
+      required: true,
+    },
+    profilePic: {
+      type: String,
+      required: false,
+    },
+    userName: {
       type: String,
       required: true,
     },
@@ -20,14 +28,9 @@ const memberSchema = new Schema(
       type: String,
       required: true,
     },
-    phoneNo: {
-      type: Number,
-      required: true,
-    },
-    role: {
-      type: String,
-      enum: ['admin', 'user', 'driver'],
-      default: 'user',
+    ticketAdministrator: {
+      type: Boolean,
+      default: false,
     },
     isDeleted: {
       type: Boolean,
@@ -37,6 +40,14 @@ const memberSchema = new Schema(
       type: String,
     },
     passwordResetExpired: Date,
+    role: {
+      type: String,
+      default: 'member',
+    },
+    organizationId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Organization',
+    },
   },
   {
     timestamps: true,
@@ -77,5 +88,5 @@ memberSchema.methods.createPasswordResetToken = async function () {
   await this.save()
   return resetToken
 }
-const Member = db.model<TUser>('Member', memberSchema)
+const Member = db.model<MemberInterface>('Member', memberSchema)
 export default Member

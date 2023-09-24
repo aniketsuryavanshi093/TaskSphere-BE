@@ -10,6 +10,9 @@
     "baseUrl": "." /* Specify the base directory to resolve non-relative module names. */,
     "paths": {
       "@members/*": ["src/components/members/*"],
+      "@organization/*": ["src/components/organization/*"],
+      "@projects/*": ["src/components/projects/*"],
+      "@auth/*": ["src/components/auth/*"],
       "@dummy/*": ["src/components/dummy/*"],
       "@notification/*": ["src/components/notification/*"],
 

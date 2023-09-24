@@ -1,67 +1,101 @@
-// import db from '../../connections/masterDB'
-// import mongoose from 'mongoose'
-// import { TBooking } from './types'
+import mongoose from 'mongoose'
+import bcrypt from 'bcrypt'
+import crypto from 'crypto'
+import { organizationInterface } from './types'
+import db from '../../connections/masterDB'
 
-// const { Schema } = mongoose
+const { Schema } = mongoose
 
-// // creating a booking schema
-// const bookingSchema = new mongoose.Schema(
-//   {
-//     currentAddress: {
-//       //Geo JSON
-//       type: {
-//         type: String,
-//         default: 'Point',
-//         enum: ['Point'],
-//       },
-//       coordinates: [Number],
-//       address: String,
-//     },
-//     destinationAddress: {
-//       // Geo JSON
-//       type: {
-//         type: String,
-//         default: 'Point',
-//         enum: ['Point'],
-//       },
-//       address: String,
-//       coordinates: [Number],
-//     },
-//     price: {
-//       type: Number,
-//       required: [true, 'price is required'],
-//     },
-//     cab: {
-//       type: Schema.Types.ObjectId,
-//       ref: 'Cab',
-//     },
-//     bookedBy: {
-//       type: Schema.Types.ObjectId,
-//       ref: 'User',
-//       required: [true, 'user is required'],
-//     },
-//     isDeleted: {
-//       type: Boolean,
-//       default: false,
-//     },
-//   },
-//   {
-//     timestamps: true,
-//     toJSON: {
-//       transform(doc, ret) {
-//         delete ret.isDeleted
-//         delete ret.__v
-//       },
-//     },
-//   }
-// )
+const organizationSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    userName: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    members: [
+      {
+        type: Schema.Types.ObjectId,
+        required: false,
+        ref: 'Member',
+      },
+    ],
+    password: {
+      type: String,
+      required: true,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    projects: [
+      {
+        type: Schema.Types.ObjectId,
+        required: false,
+        ref: 'Project',
+      },
+    ],
+    passwordResetToken: {
+      type: String,
+    },
+    isGoogleLogin: {
+      type: Boolean,
+      default: false,
+    },
+    passwordResetExpired: Date,
+    role: {
+      type: String,
+      default: 'organization',
+    },
+  },
+  {
+    timestamps: true,
+    toJSON: {
+      transform(doc, ret) {
+        delete ret.password
+        delete ret._v
+        delete ret.isDeleted
+        delete ret.passwordResetToken
+        delete ret.passwordResetExpired
+        return ret
+      },
+    },
+  }
+)
 
-// bookingSchema.pre(/^find/, async function (next) {
-//   this.populate('bookedBy', 'name email phoneNo')
-//   this.populate('cab', '-isDeleted -__v')
-//   next()
-// })
+organizationSchema.pre('save', async function (next) {
+  if (this.isModified('password')) {
+    const hashPass = await bcrypt.hash(this.password, 12)
+    this.password = hashPass
+    next()
+  }
+  next()
+})
 
-// const Booking = db.model<TBooking>('Booking', bookingSchema)
+organizationSchema.methods.comparePassword = async function (password: string) {
+  return await bcrypt.compare(password, this.password)
+}
 
-// export default Booking
+// create password reset token
+organizationSchema.methods.createPasswordResetToken = async function () {
+  const resetToken = crypto.randomBytes(32).toString('hex')
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex')
+  this.passwordResetExpired = Date.now() + 10 * 60 * 1000 // 10 min
+  await this.save()
+  return resetToken
+}
+const Organization = db.model<organizationInterface>(
+  'Organization',
+  organizationSchema
+)
+export default Organization
