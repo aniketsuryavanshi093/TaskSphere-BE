@@ -3,6 +3,8 @@ import Ticket from './ticket.model'
 import { TicketInput, comment } from './types'
 import mongoose from 'mongoose'
 import Project from '@projects/projects.model'
+import Comment from './comments.model'
+import Reply from './replies.model'
 
 export const createTicketService = async (data: Partial<TicketInput>) => {
   try {
@@ -21,18 +23,13 @@ export const addReplytocommentService = async (
   commentId: string
 ) => {
   try {
-    const ticket = await Ticket.findOneAndUpdate(
+    const ticket = await Reply.create({ ...data, comment: commentId })
+    await Ticket.findByIdAndUpdate(
+      ticketId,
       {
-        _id: ticketId,
-        'comments._id': commentId,
-      },
-      {
-        $addToSet: {
-          'comments.$.replies': data,
-        },
         $inc: { commentsCount: 1 },
       },
-      { new: true, upsert: true }
+      { new: true }
     )
     return ticket?._doc
   } catch (error) {
@@ -62,37 +59,158 @@ export const createCommentService = async (
   ticketId: string
 ) => {
   try {
-    const ticket = await Ticket.findByIdAndUpdate(
+    // Create a new Comment document
+    const comment = await Comment.create({ ...data, replies: [] })
+
+    // Find and update the corresponding Ticket document
+    const updatedTicket = await Ticket.findByIdAndUpdate(
       ticketId,
       {
         $inc: { commentsCount: 1 },
         $addToSet: {
-          comments: { ...data, replies: [] },
-        },
+          comments: new mongoose.Types.ObjectId(comment?._doc?._id),
+        }, // Add the comment's ID to the Ticket's comments array
       },
-      { new: true, upsert: true }
+      { new: true }
     )
-    return ticket?._doc
+
+    if (!updatedTicket) {
+      // Handle the case where the ticket is not found
+      return null
+    }
+
+    return comment
   } catch (error) {
     throw error
   }
 }
 
-export const getallCommentsService = async (ticketId: string) => {
+export const getPaginatedCommentsService = async (
+  ticketId: string,
+  pageNumber: number,
+  pageSize: number
+) => {
   try {
-    const ticket = await Ticket.findById(ticketId, 'comments').populate([
+    const skipCount = (pageNumber - 1) * pageSize
+    // const comment = await Ticket.findById(ticketId).populate({
+    //   path: 'comments',
+    //   populate: [
+    //     {
+    //       path: 'author',
+    //       model: 'Member',
+    //       select: 'userName name profilePic',
+    //     },
+    //     {
+    //       path: 'replies.author',
+    //       model: 'Member',
+    //       select: 'userName name profilePic',
+    //     },
+    //   ],
+    // })
+    const comment = await Ticket.aggregate([
       {
-        path: 'comments.author',
-        model: 'Member',
-        select: 'userName name profilePic',
+        $match: {
+          _id: new mongoose.Types.ObjectId(ticketId),
+        },
       },
       {
-        path: 'comments.replies.author',
-        select: 'userName name profilePic',
-        model: 'Member',
+        $lookup: {
+          from: 'comments',
+          localField: 'comments',
+          foreignField: '_id',
+          as: 'comments',
+          pipeline: [
+            {
+              $lookup: {
+                from: 'members',
+                localField: 'author',
+                foreignField: '_id',
+                as: 'author',
+                pipeline: [
+                  {
+                    $project: {
+                      name: 1,
+                      userName: 1,
+                      email: 1,
+                      profilePic: 1,
+                    },
+                  },
+                ],
+              },
+            },
+            {
+              $unwind: {
+                path: '$author',
+              },
+            },
+
+            {
+              $lookup: {
+                from: 'replies',
+                localField: '_id',
+                foreignField: 'comment',
+                as: 'repliesData',
+                pipeline: [
+                  {
+                    $lookup: {
+                      from: 'members',
+                      localField: 'author',
+                      foreignField: '_id',
+                      as: 'author',
+                      pipeline: [
+                        {
+                          $project: {
+                            name: 1,
+                            userName: 1,
+                            email: 1,
+                            profilePic: 1,
+                          },
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    $unwind: {
+                      path: '$author',
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+      {
+        $unwind: {
+          path: '$comments',
+        },
+      },
+      {
+        $group: {
+          _id: '$_id',
+          comments: { $push: '$comments' },
+          totalCommentCount: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          comments: { $slice: ['$comments', skipCount, pageSize] },
+          totalCommentCount: 1,
+        },
       },
     ])
-    return ticket?._doc
+    if (!comment || comment.length === 0) {
+      return null
+    }
+    const { comments, totalCommentCount } = comment[0]
+    return {
+      comments,
+      totalCommentCount,
+      currentPage: pageNumber,
+      totalPages: Math.ceil(totalCommentCount / pageSize),
+      itemsPerPage: pageSize,
+    }
   } catch (error) {
     throw error
   }
