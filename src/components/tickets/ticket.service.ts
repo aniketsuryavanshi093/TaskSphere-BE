@@ -4,6 +4,7 @@ import { TicketInput, comment } from './types'
 import mongoose from 'mongoose'
 import Project from '@projects/projects.model'
 import Comment from './comments.model'
+import Reply from './replies.model'
 
 export const createTicketService = async (data: Partial<TicketInput>) => {
   try {
@@ -22,15 +23,7 @@ export const addReplytocommentService = async (
   commentId: string
 ) => {
   try {
-    const ticket = await Comment.findByIdAndUpdate(
-      commentId,
-      {
-        $addToSet: {
-          replies: data,
-        },
-      },
-      { new: true }
-    )
+    const ticket = await Reply.create({ ...data, comment: commentId })
     await Ticket.findByIdAndUpdate(
       ticketId,
       {
@@ -99,6 +92,69 @@ export const getPaginatedCommentsService = async (
 ) => {
   try {
     const skipCount = (pageNumber - 1) * pageSize
+    // const comment = await Comment.aggregate([
+    //   {
+    //     $match: {
+    //       _id: new mongoose.Types.ObjectId(ticketId),
+    //     },
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: 'replies', // Use the name of your reply model's collection
+    //       localField: '_id',
+    //       foreignField: 'comment',
+    //       as: 'replies',
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       _id: 1,
+    //       text: 1,
+    //       author: 1,
+    //       orgMember: 1,
+    //       createdAt: 1,
+    //       replies: {
+    //         $map: {
+    //           input: '$replies',
+    //           as: 'reply',
+    //           in: {
+    //             _id: '$$reply._id',
+    //             text: '$$reply.text',
+    //             author: '$$reply.author',
+    //             orgMember: '$$reply.orgMember',
+    //             createdAt: '$$reply.createdAt',
+    //           },
+    //         },
+    //       },
+    //     },
+    //   },
+    // ])
+
+    // const comment = await Ticket.findById(ticketId).populate({
+    //   path: 'comments',
+    //   populate: [
+    //     {
+    //       path: 'author',
+    //       model: 'Member',
+    //       select: 'userName name profilePic',
+    //     },
+    //     {
+    //       path: 'replies.author',
+    //       model: 'Member',
+    //       select: 'userName name profilePic',
+    //     },
+    //   ],
+    // })
+
+    // const pipeline = [
+    //   {
+    //     $match: {
+    //       _id: new mongoose.Types.ObjectId(ticketId), // Assuming ticketId is a valid ObjectId
+    //     },
+    //   },
+
+    // ]
+
     const comment = await Ticket.aggregate([
       {
         $match: {
@@ -111,6 +167,65 @@ export const getPaginatedCommentsService = async (
           localField: 'comments',
           foreignField: '_id',
           as: 'comments',
+          pipeline: [
+            {
+              $lookup: {
+                from: 'members',
+                localField: 'author',
+                foreignField: '_id',
+                as: 'author',
+                pipeline: [
+                  {
+                    $project: {
+                      name: 1,
+                      userName: 1,
+                      email: 1,
+                      profilePic: 1,
+                    },
+                  },
+                ],
+              },
+            },
+            {
+              $unwind: {
+                path: '$author',
+              },
+            },
+
+            {
+              $lookup: {
+                from: 'replies',
+                localField: '_id',
+                foreignField: 'comment',
+                as: 'repliesData',
+                pipeline: [
+                  {
+                    $lookup: {
+                      from: 'members',
+                      localField: 'author',
+                      foreignField: '_id',
+                      as: 'author',
+                      pipeline: [
+                        {
+                          $project: {
+                            name: 1,
+                            userName: 1,
+                            email: 1,
+                            profilePic: 1,
+                          },
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    $unwind: {
+                      path: '$author',
+                    },
+                  },
+                ],
+              },
+            },
+          ],
         },
       },
       {
@@ -118,91 +233,20 @@ export const getPaginatedCommentsService = async (
           path: '$comments',
         },
       },
-      {
-        $lookup: {
-          from: 'members',
-          localField: 'comments.author',
-          foreignField: '_id',
-          as: 'comments.author',
-          pipeline: [
-            {
-              $project: {
-                name: 1,
-                userName: 1,
-                email: 1,
-                profilePic: 1,
-              },
-            },
-          ],
-        },
-      },
-      {
-        $lookup: {
-          from: 'organizations',
-          localField: 'comments.orgMember',
-          foreignField: '_id',
-          as: 'comments.orgMember',
-          pipeline: [
-            {
-              $project: {
-                name: 1,
-                userName: 1,
-                email: 1,
-                profilePic: 1,
-              },
-            },
-          ],
-        },
-      },
-      // {
-      //   $lookup: {
-      //     from: 'members',
-      //     localField: 'comments.replies.author',
-      //     foreignField: '_id',
-      //     as: 'comments.replies.author',
-      //     pipeline: [
-      //       {
-      //         $project: {
-      //           name: 1,
-      //           userName: 1,
-      //           email: 1,
-      //           profilePic: 1,
-      //         },
-      //       },
-      //     ],
-      //   },
-      // },
-      // {
-      //   $unwind: {
-      //     path: '$comments.replies',
-      //   },
-      // },
-      {
-        $group: {
-          _id: '$_id',
-          comments: { $push: '$comments' },
-          totalCommentCount: { $sum: 1 },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          comments: { $slice: ['$comments', skipCount, pageSize] },
-          totalCommentCount: 1,
-        },
-      },
     ])
 
-    if (!comment || comment.length === 0) {
-      return null
-    }
-    const { comments, totalCommentCount } = comment[0]
+    // console.log(ticket)
+
+    // if (!comment || comment.length === 0) {
+    //   return null
+    // }
+    // const { comments, totalCommentCount } = comment[0]
     return {
-      comments,
-      totalCommentCount,
-      currentPage: pageNumber,
-      totalPages: Math.ceil(totalCommentCount / pageSize),
-      itemsPerPage: pageSize,
+      comment,
+      // totalCommentCount,
+      // currentPage: pageNumber,
+      // totalPages: Math.ceil(totalCommentCount / pageSize),
+      // itemsPerPage: pageSize,
     }
   } catch (error) {
     throw error

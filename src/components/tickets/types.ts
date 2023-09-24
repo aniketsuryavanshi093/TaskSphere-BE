@@ -7,6 +7,13 @@ export type comment = {
   replies: comment[]
   orgMember: string
 }
+export type Reply = {
+  text: string
+  author: string
+  createdAt: string
+  orgMember: string
+  comment: string
+}
 
 export interface TicketInput {
   title: string
@@ -31,3 +38,4 @@ export interface TicketInterface extends TicketInput, Document {
 export interface CommentInterface extends comment, Document {
   isDeleted: boolean
 }
+export interface ReplyInterface extends Reply, Document {}
