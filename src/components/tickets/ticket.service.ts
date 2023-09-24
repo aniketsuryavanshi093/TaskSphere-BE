@@ -92,44 +92,6 @@ export const getPaginatedCommentsService = async (
 ) => {
   try {
     const skipCount = (pageNumber - 1) * pageSize
-    // const comment = await Comment.aggregate([
-    //   {
-    //     $match: {
-    //       _id: new mongoose.Types.ObjectId(ticketId),
-    //     },
-    //   },
-    //   {
-    //     $lookup: {
-    //       from: 'replies', // Use the name of your reply model's collection
-    //       localField: '_id',
-    //       foreignField: 'comment',
-    //       as: 'replies',
-    //     },
-    //   },
-    //   {
-    //     $project: {
-    //       _id: 1,
-    //       text: 1,
-    //       author: 1,
-    //       orgMember: 1,
-    //       createdAt: 1,
-    //       replies: {
-    //         $map: {
-    //           input: '$replies',
-    //           as: 'reply',
-    //           in: {
-    //             _id: '$$reply._id',
-    //             text: '$$reply.text',
-    //             author: '$$reply.author',
-    //             orgMember: '$$reply.orgMember',
-    //             createdAt: '$$reply.createdAt',
-    //           },
-    //         },
-    //       },
-    //     },
-    //   },
-    // ])
-
     // const comment = await Ticket.findById(ticketId).populate({
     //   path: 'comments',
     //   populate: [
@@ -145,16 +107,6 @@ export const getPaginatedCommentsService = async (
     //     },
     //   ],
     // })
-
-    // const pipeline = [
-    //   {
-    //     $match: {
-    //       _id: new mongoose.Types.ObjectId(ticketId), // Assuming ticketId is a valid ObjectId
-    //     },
-    //   },
-
-    // ]
-
     const comment = await Ticket.aggregate([
       {
         $match: {
@@ -233,20 +185,31 @@ export const getPaginatedCommentsService = async (
           path: '$comments',
         },
       },
+      {
+        $group: {
+          _id: '$_id',
+          comments: { $push: '$comments' },
+          totalCommentCount: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          comments: { $slice: ['$comments', skipCount, pageSize] },
+          totalCommentCount: 1,
+        },
+      },
     ])
-
-    // console.log(ticket)
-
-    // if (!comment || comment.length === 0) {
-    //   return null
-    // }
-    // const { comments, totalCommentCount } = comment[0]
+    if (!comment || comment.length === 0) {
+      return null
+    }
+    const { comments, totalCommentCount } = comment[0]
     return {
-      comment,
-      // totalCommentCount,
-      // currentPage: pageNumber,
-      // totalPages: Math.ceil(totalCommentCount / pageSize),
-      // itemsPerPage: pageSize,
+      comments,
+      totalCommentCount,
+      currentPage: pageNumber,
+      totalPages: Math.ceil(totalCommentCount / pageSize),
+      itemsPerPage: pageSize,
     }
   } catch (error) {
     throw error
