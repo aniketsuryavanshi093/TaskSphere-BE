@@ -16,7 +16,7 @@ const CommentSchema = new Schema(
         },
         orgMember: {
             type: Schema.Types.ObjectId,
-            ref: 'Member',
+            ref: 'Organization',
         },
         createdAt: {
             type: Date,
@@ -30,7 +30,7 @@ const CommentSchema = new Schema(
                 },
                 orgMember: {
                     type: Schema.Types.ObjectId,
-                    ref: 'Member',
+                    ref: 'Organization',
                 },
                 author: {
                     type: Schema.Types.ObjectId,

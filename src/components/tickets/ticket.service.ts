@@ -28,9 +28,8 @@ export const addReplytocommentService = async (
         $addToSet: {
           replies: data,
         },
-        $inc: { commentsCount: 1 },
       },
-      { new: true, upsert: true }
+      { new: true }
     )
     await Ticket.findByIdAndUpdate(
       ticketId,
@@ -69,7 +68,6 @@ export const createCommentService = async (
   try {
     // Create a new Comment document
     const comment = await Comment.create({ ...data, replies: [] })
-    console.log(comment)
 
     // Find and update the corresponding Ticket document
     const updatedTicket = await Ticket.findByIdAndUpdate(
@@ -101,31 +99,105 @@ export const getPaginatedCommentsService = async (
 ) => {
   try {
     const skipCount = (pageNumber - 1) * pageSize
-
-    // Use aggregation to retrieve paginated comments and total comment count
-    const result = await Ticket.aggregate([
-      { $match: { _id: new mongoose.Types.ObjectId(ticketId) } },
+    const comment = await Ticket.aggregate([
       {
-        $project: {
-          comments: 1,
-          totalCommentCount: { $size: '$comments' },
+        $match: {
+          _id: new mongoose.Types.ObjectId(ticketId),
+        },
+      },
+      {
+        $lookup: {
+          from: 'comments',
+          localField: 'comments',
+          foreignField: '_id',
+          as: 'comments',
+        },
+      },
+      {
+        $unwind: {
+          path: '$comments',
+        },
+      },
+      {
+        $lookup: {
+          from: 'members',
+          localField: 'comments.author',
+          foreignField: '_id',
+          as: 'comments.author',
+          pipeline: [
+            {
+              $project: {
+                name: 1,
+                userName: 1,
+                email: 1,
+                profilePic: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: 'organizations',
+          localField: 'comments.orgMember',
+          foreignField: '_id',
+          as: 'comments.orgMember',
+          pipeline: [
+            {
+              $project: {
+                name: 1,
+                userName: 1,
+                email: 1,
+                profilePic: 1,
+              },
+            },
+          ],
+        },
+      },
+      // {
+      //   $lookup: {
+      //     from: 'members',
+      //     localField: 'comments.replies.author',
+      //     foreignField: '_id',
+      //     as: 'comments.replies.author',
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           name: 1,
+      //           userName: 1,
+      //           email: 1,
+      //           profilePic: 1,
+      //         },
+      //       },
+      //     ],
+      //   },
+      // },
+      // {
+      //   $unwind: {
+      //     path: '$comments.replies',
+      //   },
+      // },
+
+      {
+        $group: {
+          _id: '$_id',
+          comments: { $push: '$comments' },
+          totalCommentCount: { $sum: 1 },
         },
       },
       {
         $project: {
+          _id: 0,
+          comments: { $slice: ['$comments', skipCount, pageSize] },
           totalCommentCount: 1,
-          comments: {
-            $slice: ['$comments', skipCount, pageSize],
-          },
         },
       },
     ])
 
-    if (!result || result.length === 0) {
-      // Handle the case where the ticket is not found
+    if (!comment || comment.length === 0) {
       return null
     }
-    const { comments, totalCommentCount } = result[0]
+    const { comments, totalCommentCount } = comment[0]
     return {
       comments,
       totalCommentCount,

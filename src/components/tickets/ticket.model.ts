@@ -62,7 +62,7 @@ const TicketSchema = new Schema(
     comments: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Comment', // Reference to the Comment model
+        ref: 'Comment',
       },
     ],
     isDeleted: {
