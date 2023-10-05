@@ -7,6 +7,7 @@ import Project from './projects.model'
 import { projectTypes } from './types'
 import Organization from '@organization/oragnization.model'
 import logger from '@config/logger'
+import mongoose from 'mongoose'
 
 export const addProjectService = async (
   input: projectTypes
@@ -100,6 +101,65 @@ export const getprojectService = async (projectid: string, count?: boolean) => {
   }
 }
 
+// test api
+export const getProjectForAdminService = async () => {
+  try {
+    const projectDetails = await Project.aggregate([
+      {
+        $match: {
+          organizationId: new mongoose.Types.ObjectId(
+            '64cfde3c86ada85aa6c9d816'
+          ),
+        },
+      },
+      {
+        $lookup: {
+          from: 'members', // Assuming your member collection is named 'members'
+          localField: 'members',
+          foreignField: '_id',
+          as: 'members',
+        },
+      },
+      {
+        $lookup: {
+          from: 'tickets', // Assuming your ticket collection is named 'tickets'
+          localField: '_id',
+          foreignField: 'projectId',
+          as: 'tickets',
+        },
+      },
+
+      {
+        $group: {
+          _id: '$_id',
+          title: { $first: '$title' },
+          createdAt: { $first: '$createdAt' },
+          membersCount: { $first: { $size: '$members' } },
+          ticketsCount: { $sum: 1 },
+          activeCount: {
+            $sum: {
+              $cond: {
+                if: {
+                  $in: ['$tickets.status', ['progress', 'pending']],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+        },
+      },
+      {
+        $sort: {
+          membersCount: 1,
+        },
+      },
+    ])
+    return projectDetails
+  } catch (error) {
+    logger.error(' error ----', error)
+  }
+}
 // export const findAndUpdate = async (
 //   filter: any,
 //   data: Partial<userInput>

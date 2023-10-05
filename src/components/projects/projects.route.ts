@@ -18,10 +18,11 @@
 import express from 'express'
 import { userAuth } from '@middlewares/auth'
 import {
-    AddProject,
-    addMembertoProject,
-    getprojectbyuser,
-    getproject
+  AddProject,
+  addMembertoProject,
+  getprojectbyuser,
+  getproject,
+  getprojectforAdmin,
 } from './projects.controller'
 
 const router = express.Router()
@@ -30,5 +31,5 @@ router.post('/createProject', userAuth, AddProject)
 router.post('/addMember/:id/:project', userAuth, addMembertoProject)
 router.get('/getprojectsbyuser/:user', userAuth, getprojectbyuser)
 router.get('/getprojects/:project', userAuth, getproject)
-
+router.get('/getProjectForAdmin', getprojectforAdmin)
 export default router

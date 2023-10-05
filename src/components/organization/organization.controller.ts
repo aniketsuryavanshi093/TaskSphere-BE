@@ -34,13 +34,24 @@ export const getOrganizationDetails = async (
 export const getAllorganizationsProject = async (
   req: Request,
   res: Response,
-  next: NextFunction): Promise<void | Response> => {
+  next: NextFunction
+): Promise<void | Response> => {
   try {
     // if (req.user.role !== 'organization') {
     //   throw new AppError('You are not authorized to access this route', 400)
     // }
     const userId = req.params.orgId
-    const organization = await getOrganizationProject(userId)
+    const { isOrganization, orderBy, orderType } = req.query
+    const isForOrganization =
+      isOrganization && isOrganization.toString() === 'true' ? true : false
+    const sortBy = orderBy ? orderBy.toString() : 'createdAt'
+    const sortOrder = orderType ? orderType.toString().toUpperCase() : 'DESC'
+    const organization = await getOrganizationProject(
+      userId,
+      isForOrganization,
+      sortBy,
+      sortOrder
+    )
     return res.status(200).json({
       status: 'success',
       message: 'organization Projects details fetch successfully',
