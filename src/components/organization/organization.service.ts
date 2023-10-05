@@ -1,5 +1,7 @@
+import Project from '@projects/projects.model'
 import AppError from '../../utils/appError'
 import Organization from './oragnization.model'
+import mongoose from 'mongoose'
 
 export const createOrganization = async (input: any) => {
   const doc = await Organization.create(input)
@@ -16,14 +18,73 @@ export const getOrganization = async (filter: any) => {
   }
 }
 
-
-export const getOrganizationProject = async (filter: any) => {
+export const getOrganizationProject = async (
+  userId: string,
+  isForOrganization: boolean,
+  sortBy: string,
+  sortOrder: string
+) => {
   try {
-    const doc = await Organization.findById(filter).populate({
-      path: 'projects',
-    })
-      .select('projects')
-    return doc?._doc
+    if (!isForOrganization) {
+      const doc = await Organization.findById(userId)
+        .populate({
+          path: 'projects',
+        })
+        .select('projects')
+      return doc?._doc
+    }
+
+    return await Project.aggregate([
+      {
+        $match: {
+          organizationId: new mongoose.Types.ObjectId(
+            '64cfde3c86ada85aa6c9d816'
+          ),
+        },
+      },
+      {
+        $lookup: {
+          from: 'members', // Assuming your member collection is named 'members'
+          localField: 'members',
+          foreignField: '_id',
+          as: 'members',
+        },
+      },
+      {
+        $lookup: {
+          from: 'tickets', // Assuming your ticket collection is named 'tickets'
+          localField: '_id',
+          foreignField: 'projectId',
+          as: 'tickets',
+        },
+      },
+
+      {
+        $group: {
+          _id: '$_id',
+          title: { $first: '$title' },
+          createdAt: { $first: '$createdAt' },
+          membersCount: { $first: { $size: '$members' } },
+          ticketsCount: { $sum: 1 },
+          activeCount: {
+            $sum: {
+              $cond: {
+                if: {
+                  $in: ['$tickets.status', ['progress', 'pending']],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+        },
+      },
+      {
+        $sort: {
+          [sortBy]: sortOrder === 'ASC' ? 1 : -1,
+        },
+      },
+    ])
   } catch (error: any) {
     throw new AppError(error, 400)
   }
