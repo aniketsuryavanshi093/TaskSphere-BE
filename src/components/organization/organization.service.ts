@@ -22,7 +22,9 @@ export const getOrganizationProject = async (
   userId: string,
   isForOrganization: boolean,
   sortBy: string,
-  sortOrder: string
+  sortOrder: string,
+  page: string,
+  perPage: string
 ) => {
   try {
     if (!isForOrganization) {
@@ -33,8 +35,7 @@ export const getOrganizationProject = async (
         .select('projects')
       return doc?._doc
     }
-
-    return await Project.aggregate([
+    const result = await Project.aggregate([
       {
         $match: {
           organizationId: new mongoose.Types.ObjectId(
@@ -63,6 +64,7 @@ export const getOrganizationProject = async (
         $group: {
           _id: '$_id',
           title: { $first: '$title' },
+          logoUrl: { $first: '$logoUrl' },
           createdAt: { $first: '$createdAt' },
           membersCount: { $first: { $size: '$members' } },
           ticketsCount: { $sum: 1 },
@@ -84,7 +86,33 @@ export const getOrganizationProject = async (
           [sortBy]: sortOrder === 'ASC' ? 1 : -1,
         },
       },
+      {
+        $facet: {
+          totalCount: [
+            {
+              $count: 'total',
+            },
+          ],
+          paginatedResults: [
+            {
+              $sort: {
+                [sortBy]: sortOrder === 'ASC' ? 1 : -1,
+              },
+            },
+            {
+              $skip: (parseInt(page) - 1) * parseInt(perPage),
+            },
+            {
+              $limit: parseInt(perPage),
+            },
+          ],
+        },
+      },
     ])
+    const [totalRequestCount] = result[0].totalCount
+    const paginatedResults = result[0].paginatedResults
+
+    return { totalRequestCount, paginatedResults }
   } catch (error: any) {
     throw new AppError(error, 400)
   }

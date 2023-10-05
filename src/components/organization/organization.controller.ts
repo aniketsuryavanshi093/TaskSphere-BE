@@ -41,7 +41,7 @@ export const getAllorganizationsProject = async (
     //   throw new AppError('You are not authorized to access this route', 400)
     // }
     const userId = req.params.orgId
-    const { isOrganization, orderBy, orderType } = req.query
+    const { isOrganization, orderBy, orderType, page, perPage } = req.query
     const isForOrganization =
       isOrganization && isOrganization.toString() === 'true' ? true : false
     const sortBy = orderBy ? orderBy.toString() : 'createdAt'
@@ -50,7 +50,9 @@ export const getAllorganizationsProject = async (
       userId,
       isForOrganization,
       sortBy,
-      sortOrder
+      sortOrder,
+      page,
+      perPage
     )
     return res.status(200).json({
       status: 'success',
