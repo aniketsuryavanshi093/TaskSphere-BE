@@ -38,9 +38,7 @@ export const getOrganizationProject = async (
     const result = await Project.aggregate([
       {
         $match: {
-          organizationId: new mongoose.Types.ObjectId(
-            '64cfde3c86ada85aa6c9d816'
-          ),
+          organizationId: new mongoose.Types.ObjectId(userId),
         },
       },
       {
