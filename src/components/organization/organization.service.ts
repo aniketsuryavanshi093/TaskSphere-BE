@@ -24,94 +24,166 @@ export const getOrganizationProject = async (
   sortBy: string,
   sortOrder: string,
   page: string,
-  perPage: string
+  perPage: string,
+  isForAnalytics: boolean
 ) => {
   try {
-    if (!isForOrganization) {
+    if (!isForOrganization && !isForAnalytics) {
       const doc = await Organization.findById(userId)
         .populate({
           path: 'projects',
         })
         .select('projects')
       return doc?._doc
-    }
-    const result = await Project.aggregate([
-      {
-        $match: {
-          organizationId: new mongoose.Types.ObjectId(userId),
-        },
-      },
-      {
-        $lookup: {
-          from: 'members',
-          localField: 'members',
-          foreignField: '_id',
-          as: 'members',
-        },
-      },
-      {
-        $lookup: {
-          from: 'tickets',
-          localField: '_id',
-          foreignField: 'projectId',
-          as: 'tickets',
-        },
-      },
-      {
-        $unwind: '$tickets',
-      },
-      {
-        $group: {
-          _id: '$_id',
-          title: { $first: '$title' },
-          membersCount: { $first: { $size: '$members' } },
-          ticketsCount: { $sum: 1 },
-          activeCount: {
-            $sum: {
-              $cond: {
-                if: {
-                  $in: ['$tickets.status', ['progress', 'pending']],
-                },
-                then: 1,
-                else: 0,
-              },
-            },
+    } else if (isForAnalytics) {
+      const result = await Project.aggregate([
+        {
+          $match: {
+            organizationId: new mongoose.Types.ObjectId(userId),
           },
-          createdAt: { $first: '$createdAt' },
         },
-      },
-      {
-        $sort: {
-          [sortBy]: sortOrder === 'ASC' ? 1 : -1,
+        {
+          $lookup: {
+            from: 'members',
+            localField: 'members',
+            foreignField: '_id',
+            as: 'members',
+          },
         },
-      },
-      {
-        $facet: {
-          totalCount: [
-            {
-              $count: 'total',
-            },
-          ],
-          paginatedResults: [
-            {
-              $sort: {
-                [sortBy]: sortOrder === 'ASC' ? 1 : -1,
+        {
+          $lookup: {
+            from: 'tickets',
+            localField: '_id',
+            foreignField: 'projectId',
+            as: 'tickets',
+          },
+        },
+        {
+          $unwind: '$tickets',
+        },
+        {
+          $group: {
+            _id: '$_id',
+            title: { $first: '$title' },
+            membersCount: { $first: { $size: '$members' } },
+            ticketsCount: { $sum: 1 },
+            progressCount: {
+              $sum: {
+                $cond: {
+                  if: {
+                    $in: ['$tickets.status', ['progress']],
+                  },
+                  then: 1,
+                  else: 0,
+                },
               },
             },
-            {
-              $skip: (parseInt(page) - 1) * parseInt(perPage),
+            todoCount: {
+              $sum: {
+                $cond: {
+                  if: {
+                    $in: ['$tickets.status', ['pending']],
+                  },
+                  then: 1,
+                  else: 0,
+                },
+              },
             },
-            {
-              $limit: parseInt(perPage),
+            doneCount: {
+              $sum: {
+                $cond: {
+                  if: {
+                    $in: ['$tickets.status', ['done']],
+                  },
+                  then: 1,
+                  else: 0,
+                },
+              },
             },
-          ],
+            updatedAt: { $first: '$updatedAt' },
+          },
         },
-      },
-    ])
-    const [totalRequestCount] = result[0].totalCount
-    const paginatedResults = result[0].paginatedResults
+      ])
+      return { data: result }
+    } else {
+      const result = await Project.aggregate([
+        {
+          $match: {
+            organizationId: new mongoose.Types.ObjectId(userId),
+          },
+        },
+        {
+          $lookup: {
+            from: 'members',
+            localField: 'members',
+            foreignField: '_id',
+            as: 'members',
+          },
+        },
+        {
+          $lookup: {
+            from: 'tickets',
+            localField: '_id',
+            foreignField: 'projectId',
+            as: 'tickets',
+          },
+        },
+        {
+          $unwind: '$tickets',
+        },
+        {
+          $group: {
+            _id: '$_id',
+            title: { $first: '$title' },
+            membersCount: { $first: { $size: '$members' } },
+            ticketsCount: { $sum: 1 },
+            activeCount: {
+              $sum: {
+                $cond: {
+                  if: {
+                    $in: ['$tickets.status', ['progress', 'pending']],
+                  },
+                  then: 1,
+                  else: 0,
+                },
+              },
+            },
+            createdAt: { $first: '$createdAt' },
+          },
+        },
+        {
+          $sort: {
+            [sortBy]: sortOrder === 'ASC' ? 1 : -1,
+          },
+        },
+        {
+          $facet: {
+            totalCount: [
+              {
+                $count: 'total',
+              },
+            ],
+            paginatedResults: [
+              {
+                $sort: {
+                  [sortBy]: sortOrder === 'ASC' ? 1 : -1,
+                },
+              },
+              {
+                $skip: (parseInt(page) - 1) * parseInt(perPage),
+              },
+              {
+                $limit: parseInt(perPage),
+              },
+            ],
+          },
+        },
+      ])
+      const [totalRequestCount] = result[0].totalCount
+      const paginatedResults = result[0].paginatedResults
 
-    return { totalRequestCount, paginatedResults }
+      return { totalRequestCount, paginatedResults }
+    }
   } catch (error: any) {
     throw new AppError(error, 400)
   }
