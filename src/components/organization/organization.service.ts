@@ -43,7 +43,7 @@ export const getOrganizationProject = async (
       },
       {
         $lookup: {
-          from: 'members', // Assuming your member collection is named 'members'
+          from: 'members',
           localField: 'members',
           foreignField: '_id',
           as: 'members',
@@ -51,19 +51,19 @@ export const getOrganizationProject = async (
       },
       {
         $lookup: {
-          from: 'tickets', // Assuming your ticket collection is named 'tickets'
+          from: 'tickets',
           localField: '_id',
           foreignField: 'projectId',
           as: 'tickets',
         },
       },
-
+      {
+        $unwind: '$tickets',
+      },
       {
         $group: {
           _id: '$_id',
           title: { $first: '$title' },
-          logoUrl: { $first: '$logoUrl' },
-          createdAt: { $first: '$createdAt' },
           membersCount: { $first: { $size: '$members' } },
           ticketsCount: { $sum: 1 },
           activeCount: {
@@ -77,6 +77,7 @@ export const getOrganizationProject = async (
               },
             },
           },
+          createdAt: { $first: '$createdAt' },
         },
       },
       {

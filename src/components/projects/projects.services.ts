@@ -114,7 +114,7 @@ export const getProjectForAdminService = async () => {
       },
       {
         $lookup: {
-          from: 'members', // Assuming your member collection is named 'members'
+          from: 'members',
           localField: 'members',
           foreignField: '_id',
           as: 'members',
@@ -122,31 +122,33 @@ export const getProjectForAdminService = async () => {
       },
       {
         $lookup: {
-          from: 'tickets', // Assuming your ticket collection is named 'tickets'
+          from: 'tickets',
           localField: '_id',
           foreignField: 'projectId',
           as: 'tickets',
         },
       },
-
+      {
+        $unwind: '$tickets',
+      },
       {
         $group: {
           _id: '$_id',
           title: { $first: '$title' },
-          createdAt: { $first: '$createdAt' },
           membersCount: { $first: { $size: '$members' } },
           ticketsCount: { $sum: 1 },
           activeCount: {
             $sum: {
               $cond: {
                 if: {
-                  $in: ['$tickets.status', ['progress', 'pending']],
+                  $in: ['$tickets.status', ['progress', 'active']],
                 },
                 then: 1,
                 else: 0,
               },
             },
           },
+          createdAt: { $first: '$createdAt' },
         },
       },
       {
