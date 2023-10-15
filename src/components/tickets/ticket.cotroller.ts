@@ -126,6 +126,7 @@ export const getAllTicket = async (
       priority,
       userIds,
       orderBy,
+      notshowDone,
       orderType,
       label,
     } = req.query
@@ -135,6 +136,7 @@ export const getAllTicket = async (
     const searchText: string = search !== undefined ? search?.toString()! : ''
     const ticketStatus: string = status !== undefined ? status?.toString()! : ''
     const forUser = isforUser !== 'true' ? false : true
+    const _notshowDone = notshowDone === 'true' ? true : false
     const projectid: string | null =
       projectId !== undefined ? projectId.toString() : null
     const userids = userIds !== undefined ? userIds.toString().split(',') : []
@@ -163,7 +165,8 @@ export const getAllTicket = async (
       userids,
       strorderBy,
       numOrderType,
-      strLabel
+      strLabel,
+      _notshowDone,
     )
     return handleResponse({
       res,

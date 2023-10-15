@@ -89,6 +89,8 @@ export const login = async (
         ? user.ticketAdministrator
         : false,
     })
+    console.log(user._doc);
+
     delete user._doc.password
     delete user._doc.__v
     delete user._doc.isDeleted

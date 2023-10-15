@@ -46,7 +46,7 @@ export const updateTicketService = async (
   ticketId: string
 ) => {
   try {
-    const ticket = await Ticket.findOneAndUpdate(
+    const ticket = await Ticket.findByIdAndUpdate(
       ticketId,
       {
         ...data,
@@ -257,7 +257,7 @@ export const getPaginatedCommentsService = async (
       },
     ])
 
-    
+
     const { comments, totalCommentCount } = comment[0]
     return {
       comments,
@@ -284,7 +284,8 @@ export const getAllTicketService = async (
   userIds,
   orderBy,
   orderType,
-  label
+  label,
+  notshowDone
 ) => {
   logger.info('Insite get all ticket service')
   try {
@@ -310,6 +311,10 @@ export const getAllTicketService = async (
     if (status !== '') {
       condition.status = status
     }
+    if (notshowDone) {
+      console.log(notshowDone, "😀😀😀😀😀😀😀😀😀");
+      condition.status = { $in: ['pending', 'progress'] }
+    }
     if (label !== '') {
       condition.label = label
     }
@@ -321,6 +326,7 @@ export const getAllTicketService = async (
         $in: userIds,
       }
     }
+    console.log(condition, notshowDone)
     const count = await Ticket.countDocuments(condition)
     const pipeline: any = [
       {
