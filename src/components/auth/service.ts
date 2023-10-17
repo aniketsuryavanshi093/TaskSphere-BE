@@ -30,3 +30,27 @@ export const getMemeber = async (filter: any) => {
     throw new AppError(error, 400)
   }
 }
+
+export const updateMember = async (filter, userId) => {
+  try {
+    const doc = await Member.findByIdAndUpdate(userId, filter, {
+      new: true,
+      upsert: true,
+    })
+    return doc
+  } catch (error: any) {
+    throw new AppError(error, 400)
+  }
+}
+
+export const updateOrganization = async (filter, userId) => {
+  try {
+    const doc = await Organization.findByIdAndUpdate(userId, filter, {
+      new: true,
+      upsert: true,
+    })
+    return doc
+  } catch (error: any) {
+    throw new AppError(error, 400)
+  }
+}

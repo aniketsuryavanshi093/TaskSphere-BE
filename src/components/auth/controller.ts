@@ -1,7 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Request, Response, NextFunction } from 'express'
 import AppError from '../../utils/appError'
-import { createOrganization, getMemeber, getOrganization } from '@auth/service'
+import {
+  createOrganization,
+  getMemeber,
+  getOrganization,
+  updateMember,
+  updateOrganization,
+} from '@auth/service'
 import { generateToken } from '@utils/jwt'
 
 export const registerOrganization = async (
@@ -31,6 +37,43 @@ export const registerOrganization = async (
     return res
       .status(201)
       .json({ status: 'success', message: 'Registration success', data: doc })
+  } catch (error: any) {
+    if (error.isJoi === true) {
+      error.statusCode = 422
+    }
+    next(error)
+  }
+}
+
+export const update = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void | Response> => {
+  try {
+    //   validate req.body for register
+    const { Bio, userName, profilePic, email } = req.body
+    // const data = await registerInput.validateAsync(req.body)
+    // check email is already registered?
+    const isExist = await getOrganization({
+      $or: [{ email }, { userName }],
+    })
+    const isMemberExist = await getMemeber({
+      $or: [{ email }, { userName }],
+    })
+    let doc = null
+    if (isExist) {
+      doc = await updateOrganization(
+        { Bio, userName, profilePic },
+        req.user._id
+      )
+    }
+    if (isMemberExist) {
+      doc = await updateMember({ Bio, userName, profilePic }, req.user._id)
+    }
+    return res
+      .status(201)
+      .json({ status: 'success', message: 'Update success', data: doc })
   } catch (error: any) {
     if (error.isJoi === true) {
       error.statusCode = 422
@@ -89,7 +132,7 @@ export const login = async (
         ? user.ticketAdministrator
         : false,
     })
-    console.log(user._doc);
+    console.log(user._doc)
 
     delete user._doc.password
     delete user._doc.__v
