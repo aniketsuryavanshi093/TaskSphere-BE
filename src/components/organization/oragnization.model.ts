@@ -29,7 +29,7 @@ const organizationSchema = new Schema(
     ],
     password: {
       type: String,
-      required: true,
+      required: false,
     },
     isDeleted: {
       type: Boolean,
@@ -42,6 +42,10 @@ const organizationSchema = new Schema(
         ref: 'Project',
       },
     ],
+    profilePic: {
+      type: String,
+      required: false,
+    },
     passwordResetToken: {
       type: String,
     },

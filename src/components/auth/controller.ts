@@ -50,12 +50,17 @@ export const login = async (
     const checkForOrganization = await getOrganization({
       $or: [{ email: loginCredential }, { userName: loginCredential }],
     })
+    console.log(checkForOrganization, req.body);
+
     if (checkForOrganization === null) {
+      if (isGoogleLogin) {
+        throw new AppError('User not found!', 409)
+      }
       const checkForMember = await getMemeber({
         $or: [{ email: loginCredential }, { userName: loginCredential }],
       })
       if (checkForMember === null) {
-        throw new AppError('Invalid credentials', 409)
+        throw new AppError('User not found!', 409)
       }
       let confirmPassword = false
       if (isGoogleLogin) {
@@ -89,6 +94,8 @@ export const login = async (
         ? user.ticketAdministrator
         : false,
     })
+    console.log(user._doc);
+
     delete user._doc.password
     delete user._doc.__v
     delete user._doc.isDeleted
