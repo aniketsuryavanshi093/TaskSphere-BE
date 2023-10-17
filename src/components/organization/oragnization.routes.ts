@@ -1,7 +1,7 @@
 import express from 'express'
 import {
-    getOrganizationDetails,
-    getAllorganizationsProject,
+  getOrganizationDetails,
+  getAllorganizationsProject,
 } from './organization.controller'
 import { userAuth } from '@middlewares/auth'
 // import { userAuth } from '../../middlewares/auth'

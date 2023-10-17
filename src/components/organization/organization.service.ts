@@ -53,25 +53,48 @@ export const getOrganizationProject = async (
         {
           $lookup: {
             from: 'tickets',
-            localField: '_id',
-            foreignField: 'projectId',
+            let: { projectId: '$_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ['$projectId', '$$projectId'],
+                  },
+                },
+              },
+            ],
             as: 'tickets',
           },
         },
         {
-          $unwind: '$tickets',
+          $unwind: {
+            path: '$tickets',
+            preserveNullAndEmptyArrays: true,
+          },
         },
         {
           $group: {
             _id: '$_id',
             title: { $first: '$title' },
+            projectUrl: { $first: '$title' },
+            logoUrl: { $first: '$logoUrl' },
             membersCount: { $first: { $size: '$members' } },
-            ticketsCount: { $sum: 1 },
+            ticketsCount: {
+              $sum: {
+                $cond: {
+                  if: {
+                    $ifNull: ['$tickets', null],
+                  },
+                  then: 1,
+                  else: 0,
+                },
+              },
+            },
             progressCount: {
               $sum: {
                 $cond: {
                   if: {
-                    $in: ['$tickets.status', ['progress']],
+                    $in: [{ $ifNull: ['$tickets.status', null] }, ['progress']],
                   },
                   then: 1,
                   else: 0,
@@ -82,7 +105,7 @@ export const getOrganizationProject = async (
               $sum: {
                 $cond: {
                   if: {
-                    $in: ['$tickets.status', ['pending']],
+                    $in: [{ $ifNull: ['$tickets.status', null] }, ['pending']],
                   },
                   then: 1,
                   else: 0,
@@ -93,7 +116,7 @@ export const getOrganizationProject = async (
               $sum: {
                 $cond: {
                   if: {
-                    $in: ['$tickets.status', ['done']],
+                    $in: [{ $ifNull: ['$tickets.status', null] }, ['done']],
                   },
                   then: 1,
                   else: 0,
@@ -123,25 +146,50 @@ export const getOrganizationProject = async (
         {
           $lookup: {
             from: 'tickets',
-            localField: '_id',
-            foreignField: 'projectId',
+            let: { projectId: '$_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ['$projectId', '$$projectId'],
+                  },
+                },
+              },
+            ],
             as: 'tickets',
           },
         },
         {
-          $unwind: '$tickets',
+          $unwind: {
+            path: '$tickets',
+            preserveNullAndEmptyArrays: true,
+          },
         },
         {
           $group: {
             _id: '$_id',
+            logoUrl: { $first: '$logoUrl' },
             title: { $first: '$title' },
             membersCount: { $first: { $size: '$members' } },
-            ticketsCount: { $sum: 1 },
+            ticketsCount: {
+              $sum: {
+                $cond: {
+                  if: {
+                    $ifNull: ['$tickets', null],
+                  },
+                  then: 1,
+                  else: 0,
+                },
+              },
+            },
             activeCount: {
               $sum: {
                 $cond: {
                   if: {
-                    $in: ['$tickets.status', ['progress', 'pending']],
+                    $in: [
+                      { $ifNull: ['$tickets.status', null] },
+                      ['progress', 'pending'],
+                    ],
                   },
                   then: 1,
                   else: 0,

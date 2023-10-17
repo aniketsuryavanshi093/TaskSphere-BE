@@ -312,7 +312,6 @@ export const getAllTicketService = async (
       condition.status = status
     }
     if (notshowDone) {
-      console.log(notshowDone, "😀😀😀😀😀😀😀😀😀");
       condition.status = { $in: ['pending', 'progress'] }
     }
     if (label !== '') {
@@ -326,7 +325,6 @@ export const getAllTicketService = async (
         $in: userIds,
       }
     }
-    console.log(condition, notshowDone)
     const count = await Ticket.countDocuments(condition)
     const pipeline: any = [
       {
