@@ -76,6 +76,8 @@ export const getOrganizationProject = async (
           $group: {
             _id: '$_id',
             title: { $first: '$title' },
+            projectUrl: { $first: '$title' },
+            logoUrl: { $first: '$logoUrl' },
             membersCount: { $first: { $size: '$members' } },
             ticketsCount: {
               $sum: {
@@ -166,6 +168,7 @@ export const getOrganizationProject = async (
         {
           $group: {
             _id: '$_id',
+            logoUrl: { $first: '$logoUrl' },
             title: { $first: '$title' },
             membersCount: { $first: { $size: '$members' } },
             ticketsCount: {
