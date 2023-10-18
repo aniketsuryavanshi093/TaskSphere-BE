@@ -32,7 +32,6 @@ export const registerOrganization = async (
     if (isMemberExist) {
       throw new AppError('Email is already registered', 409)
     }
-    console.log(req.body)
     const doc = await createOrganization(req.body)
     return res
       .status(201)
@@ -45,6 +44,39 @@ export const registerOrganization = async (
   }
 }
 
+export const isExist = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void | Response> => {
+  try {
+    const { userName } = req.body
+    const isorgExist = await getOrganization({
+      $or: [{ userName }],
+    })
+    const isMemberExist = await getMemeber({
+      $or: [{ userName }],
+    })
+    if (isorgExist || isMemberExist) {
+      return res.status(201).json({
+        status: 'success',
+        message: 'user found',
+        isUserExists: true,
+      })
+    } else {
+      return res.status(201).json({
+        status: 'success',
+        message: 'user not found',
+        isUserExists: false,
+      })
+    }
+  } catch (error: any) {
+    if (error.isJoi === true) {
+      error.statusCode = 422
+    }
+    next(error)
+  }
+}
 export const update = async (
   req: Request,
   res: Response,
@@ -93,7 +125,6 @@ export const login = async (
     const checkForOrganization = await getOrganization({
       $or: [{ email: loginCredential }, { userName: loginCredential }],
     })
-    console.log(checkForOrganization, req.body);
 
     if (checkForOrganization === null) {
       if (isGoogleLogin) {

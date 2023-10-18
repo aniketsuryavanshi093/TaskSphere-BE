@@ -23,8 +23,6 @@ export const addReplytocommentService = async (
   commentId: string
 ) => {
   try {
-    console.log({ ...data, comment: commentId })
-
     const ticket = await Reply.create({ ...data, comment: commentId })
     await Ticket.findByIdAndUpdate(
       ticketId,
@@ -33,8 +31,6 @@ export const addReplytocommentService = async (
       },
       { new: true }
     )
-    console.log(ticket?._doc)
-
     return ticket?._doc
   } catch (error) {
     throw error
@@ -256,14 +252,13 @@ export const getPaginatedCommentsService = async (
         },
       },
     ])
+    console.log(comment);
 
-
-    const { comments, totalCommentCount } = comment[0]
     return {
-      comments,
-      totalCommentCount,
+      comments: comment[0]?.comments,
+      totalCommentCount: comment[0]?.totalCommentCount,
       currentPage: pageNumber,
-      totalPages: Math.ceil(totalCommentCount / pageSize),
+      totalPages: Math.ceil(comment[0]?.totalCommentCount / pageSize),
       itemsPerPage: pageSize,
     }
   } catch (error) {

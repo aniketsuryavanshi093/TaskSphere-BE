@@ -97,6 +97,7 @@ export const createComment = async (
   try {
     const data: Partial<comment> = req.body
     const { ticketId } = req.params
+    console.log(data, ticketId);
     const result = await createCommentService(data, ticketId)
     return handleResponse({
       res,
