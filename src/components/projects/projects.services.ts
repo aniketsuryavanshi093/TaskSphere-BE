@@ -62,12 +62,111 @@ export const getProjectService = async (query: any) => {
   }
 }
 
-export const getprojectbyuserService = async (userid: any) => {
+export const getprojectbyuserService = async (userid: any, isForAnalytics) => {
   logger.info('Inside get project service')
   try {
-    const data = await Project.find({
-      members: { $in: [userid] },
-    })
+    let data = null
+    if (!isForAnalytics) {
+      data = await Project.find({
+        members: { $in: [userid] },
+      })
+    } else if (isForAnalytics) {
+      data = await Project.aggregate([
+        {
+          $match: {
+            members: {
+              $elemMatch: {
+                $eq: new mongoose.Types.ObjectId(userid),
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: 'members',
+            localField: 'members',
+            foreignField: '_id',
+            as: 'members',
+          },
+        },
+        {
+          $lookup: {
+            from: 'tickets',
+            let: { projectId: '$_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ['$projectId', '$$projectId'],
+                  },
+                },
+              },
+            ],
+            as: 'tickets',
+          },
+        },
+        {
+          $unwind: {
+            path: '$tickets',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $group: {
+            _id: '$_id',
+            title: { $first: '$title' },
+            projectUrl: { $first: '$title' },
+            logoUrl: { $first: '$logoUrl' },
+            membersCount: { $first: { $size: '$members' } },
+            ticketsCount: {
+              $sum: {
+                $cond: {
+                  if: {
+                    $ifNull: ['$tickets', null],
+                  },
+                  then: 1,
+                  else: 0,
+                },
+              },
+            },
+            progressCount: {
+              $sum: {
+                $cond: {
+                  if: {
+                    $in: [{ $ifNull: ['$tickets.status', null] }, ['progress']],
+                  },
+                  then: 1,
+                  else: 0,
+                },
+              },
+            },
+            todoCount: {
+              $sum: {
+                $cond: {
+                  if: {
+                    $in: [{ $ifNull: ['$tickets.status', null] }, ['pending']],
+                  },
+                  then: 1,
+                  else: 0,
+                },
+              },
+            },
+            doneCount: {
+              $sum: {
+                $cond: {
+                  if: {
+                    $in: [{ $ifNull: ['$tickets.status', null] }, ['done']],
+                  },
+                  then: 1,
+                  else: 0,
+                },
+              },
+            },
+            updatedAt: { $first: '$updatedAt' },
+          },
+        },
+      ])
+    }
     if (!data) {
       throw new AppError('project Does not exists!', 400)
     }
