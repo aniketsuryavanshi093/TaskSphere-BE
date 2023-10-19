@@ -9,6 +9,7 @@ import {
   updateTicketService,
   createCommentService,
 } from './ticket.service'
+import { createActivity } from '../activity/service'
 
 export const createTicket = async (
   req: Request,
@@ -18,6 +19,14 @@ export const createTicket = async (
   try {
     const data: Partial<TicketInput> = req.body
     const result = await createTicketService(data)
+    await createActivity({
+      createdBy: result.createdBy,
+      createdByOrg: result.createdByOrg,
+      activity: 'create',
+      type: 'Ticket',
+      assignedTo: result.assignedTo,
+      projectId: result.projectId,
+    })
     return handleResponse({
       res,
       message: 'Ticket created',
