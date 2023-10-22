@@ -151,9 +151,7 @@ export const getPaginatedCommentsService = async (
     //       _id: new mongoose.Types.ObjectId(ticketId), // Assuming ticketId is a valid ObjectId
     //     },
     //   },
-
     // ]
-
     const comment = await Ticket.aggregate([
       {
         $match: {
@@ -167,6 +165,14 @@ export const getPaginatedCommentsService = async (
           foreignField: '_id',
           as: 'comments',
           pipeline: [
+            {
+              $match: {
+                $or: [
+                  { author: { $exists: true } },
+                  { orgMember: { $exists: true } },
+                ],
+              },
+            },
             {
               $lookup: {
                 from: 'members',
@@ -186,11 +192,34 @@ export const getPaginatedCommentsService = async (
               },
             },
             {
+              $lookup: {
+                from: 'organizations',
+                localField: 'orgMember',
+                foreignField: '_id',
+                as: 'orgMember',
+                pipeline: [
+                  {
+                    $project: {
+                      name: 1,
+                      userName: 1,
+                      email: 1,
+                      profilePic: 1,
+                    },
+                  },
+                ],
+              },
+            },
+            {
               $unwind: {
                 path: '$author',
               },
             },
-
+            {
+              $unwind: {
+                path: '$orgMember',
+                preserveNullAndEmptyArrays: true // Handle cases where orgMember is missing
+              },
+            },
             {
               $lookup: {
                 from: 'replies',
@@ -251,8 +280,7 @@ export const getPaginatedCommentsService = async (
           totalCommentCount: 1,
         },
       },
-    ])
-    console.log(comment);
+    ]);
 
     return {
       comments: comment[0]?.comments,
