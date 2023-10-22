@@ -22,7 +22,7 @@ const activitySchema = new Schema(
     },
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: 'Project',
+      ref: 'Member',
     },
     createdByOrg: {
       type: Schema.Types.ObjectId,
