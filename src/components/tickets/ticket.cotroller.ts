@@ -9,6 +9,7 @@ import {
   updateTicketService,
   createCommentService,
 } from './ticket.service'
+import { createActivity } from '../activity/service'
 
 export const createTicket = async (
   req: Request,
@@ -18,6 +19,22 @@ export const createTicket = async (
   try {
     const data: Partial<TicketInput> = req.body
     const result = await createTicketService(data)
+    await createActivity({
+      createdBy: req.user.role === 'member' ? req.user._id : null,
+      createdByOrg: req.user.role === 'organization' ? req.user._id : null,
+      action: 'create',
+      type: 'Ticket',
+      assignedTo: result.assignedTo,
+      projectId: result.projectId,
+    })
+    await createActivity({
+      createdBy: req.user.role === 'member' ? req.user._id : null,
+      createdByOrg: req.user.role === 'organization' ? req.user._id : null,
+      action: 'assign',
+      type: 'Ticket',
+      assignedTo: result.assignedTo,
+      projectId: result.projectId,
+    })
     return handleResponse({
       res,
       message: 'Ticket created',
@@ -97,7 +114,7 @@ export const createComment = async (
   try {
     const data: Partial<comment> = req.body
     const { ticketId } = req.params
-    console.log(data, ticketId);
+    console.log(data, ticketId)
     const result = await createCommentService(data, ticketId)
     return handleResponse({
       res,
@@ -167,7 +184,7 @@ export const getAllTicket = async (
       strorderBy,
       numOrderType,
       strLabel,
-      _notshowDone,
+      _notshowDone
     )
     return handleResponse({
       res,
