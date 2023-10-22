@@ -20,9 +20,17 @@ export const createTicket = async (
     const data: Partial<TicketInput> = req.body
     const result = await createTicketService(data)
     await createActivity({
-      createdBy: result.createdBy,
-      createdByOrg: result.createdByOrg,
-      activity: 'create',
+      createdBy: req.user.role === 'member' ? req.user._id : null,
+      createdByOrg: req.user.role === 'organization' ? req.user._id : null,
+      action: 'create',
+      type: 'Ticket',
+      assignedTo: result.assignedTo,
+      projectId: result.projectId,
+    })
+    await createActivity({
+      createdBy: req.user.role === 'member' ? req.user._id : null,
+      createdByOrg: req.user.role === 'organization' ? req.user._id : null,
+      action: 'assign',
       type: 'Ticket',
       assignedTo: result.assignedTo,
       projectId: result.projectId,
@@ -106,7 +114,7 @@ export const createComment = async (
   try {
     const data: Partial<comment> = req.body
     const { ticketId } = req.params
-    console.log(data, ticketId);
+    console.log(data, ticketId)
     const result = await createCommentService(data, ticketId)
     return handleResponse({
       res,
@@ -176,7 +184,7 @@ export const getAllTicket = async (
       strorderBy,
       numOrderType,
       strLabel,
-      _notshowDone,
+      _notshowDone
     )
     return handleResponse({
       res,
