@@ -16,6 +16,10 @@ const activitySchema = new Schema(
       type: String,
       enum: ['Ticket', 'Member', 'Project'],
     },
+    ticketId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Ticket',
+    },
     projectId: {
       type: Schema.Types.ObjectId,
       ref: 'Project',
