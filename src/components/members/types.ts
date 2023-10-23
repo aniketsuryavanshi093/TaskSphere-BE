@@ -16,3 +16,4 @@ export interface MemberInterface extends memberInput, Document {
   comparePassword: (password: string) => boolean
   createPasswordResetToken: () => string
 }
+

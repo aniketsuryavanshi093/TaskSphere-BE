@@ -26,6 +26,7 @@ export const createTicket = async (
       type: 'Ticket',
       assignedTo: result.assignedTo,
       projectId: result.projectId,
+      ticketId: result._id,
     })
     await createActivity({
       createdBy: req.user.role === 'member' ? req.user._id : null,
@@ -34,6 +35,7 @@ export const createTicket = async (
       type: 'Ticket',
       assignedTo: result.assignedTo,
       projectId: result.projectId,
+      ticketId: result._id,
     })
     return handleResponse({
       res,

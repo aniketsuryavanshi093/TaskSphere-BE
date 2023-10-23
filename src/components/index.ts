@@ -4,13 +4,14 @@ import organizationRoute from '@organization/oragnization.routes'
 import authRoute from '@auth/route'
 import projectRoutes from './projects/projects.route'
 import ticketRouter from './tickets/ticket.route'
-
+import blogRouter from './blog/route'
 import activityRoute from './activity/route'
-// import bookRouter from './booking/bookingRoutes'
+
 const router = express.Router()
 
 router.use('/auth', authRoute)
 router.use('/members', memberRouter)
+router.use('/blog', blogRouter)
 router.use('/organization', organizationRoute)
 router.use('/project', projectRoutes)
 router.use('/ticket', ticketRouter)

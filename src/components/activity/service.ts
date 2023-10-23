@@ -83,6 +83,7 @@ export const getAllActivityService = async (
                 name: 1,
                 userName: 1,
                 email: 1,
+                profilePic: 1,
               },
             },
           ],
@@ -115,6 +116,7 @@ export const getAllActivityService = async (
               $project: {
                 name: 1,
                 userName: 1,
+                profilePic: 1,
                 email: 1,
               },
             },
@@ -127,6 +129,21 @@ export const getAllActivityService = async (
           localField: 'createdByOrg',
           foreignField: '_id',
           as: 'createdByOrgData',
+        },
+      },
+      {
+        $lookup: {
+          from: 'tickets',
+          localField: 'ticketId',
+          foreignField: '_id',
+          as: 'ticketdata',
+          pipeline: [
+            {
+              $project: {
+                title: 1,
+              },
+            },
+          ],
         },
       },
       {
@@ -154,6 +171,12 @@ export const getAllActivityService = async (
         },
       },
       {
+        $unwind: {
+          path: '$ticketdata',
+          preserveNullAndEmptyArrays: true, // Exclude null values
+        },
+      },
+      {
         $group: {
           _id: '$_id',
           action: { $first: '$action' },
@@ -162,6 +185,9 @@ export const getAllActivityService = async (
           createdBy: { $first: '$createdBy' },
           createdByOrg: { $first: '$createdByOrg' },
           assignedTo: { $first: '$assignedTo' },
+          ticketData: {
+            $first: '$ticketdata',
+          },
           projectData: { $first: '$projectData' },
           createdByOrgData: { $first: '$createdByOrgData' },
           createdAt: { $first: '$createdAt' },
