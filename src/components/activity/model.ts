@@ -20,6 +20,10 @@ const activitySchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'Ticket',
     },
+    ticketUpdatetext: {
+      required: false,
+      type: String,
+    },
     projectId: {
       type: Schema.Types.ObjectId,
       ref: 'Project',
