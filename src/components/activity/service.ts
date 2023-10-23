@@ -188,6 +188,7 @@ export const getAllActivityService = async (
           ticketData: {
             $first: '$ticketdata',
           },
+          ticketUpdatetext: { $first: '$ticketUpdatetext' },
           projectData: { $first: '$projectData' },
           createdByOrgData: { $first: '$createdByOrgData' },
           createdAt: { $first: '$createdAt' },

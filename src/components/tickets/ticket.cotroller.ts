@@ -18,7 +18,11 @@ export const createTicket = async (
 ) => {
   try {
     const data: Partial<TicketInput> = req.body
-    const result = await createTicketService(data)
+    const result = await createTicketService({
+      ...data,
+      createdBy: req.user.role === 'member' ? req.user._id : null,
+      createdByOrg: req.user.role === 'organization' ? req.user._id : null,
+    })
     await createActivity({
       createdBy: req.user.role === 'member' ? req.user._id : null,
       createdByOrg: req.user.role === 'organization' ? req.user._id : null,
@@ -97,6 +101,15 @@ export const updateTicket = async (
   try {
     const data: Partial<TicketInput> = req.body
     const { ticketId } = req.params
+    await createActivity({
+      createdBy: req.user.role === 'member' ? req.user._id : null,
+      createdByOrg: req.user.role === 'organization' ? req.user._id : null,
+      action: 'update',
+      type: 'Ticket',
+      ticketUpdatetext: `from ${req.body.currentstatus} to ${req.body.status}`,
+      projectId: req.body.projectId,
+      ticketId,
+    })
     const result = await updateTicketService(data, ticketId)
     return handleResponse({
       res,
