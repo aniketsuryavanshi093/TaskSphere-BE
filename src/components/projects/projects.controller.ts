@@ -25,6 +25,19 @@ export const AddProject = async (
       ...req.body,
       organizationId: req.user._id,
     })
+    // for (let i = 0; i < req.body.members.length; i++) {
+
+
+    // }
+    await Promise.all(req.body.members.map(async (e) => {
+      await createActivity({
+        createdByOrg: req.user._id,
+        action: 'added',
+        type: 'Project',
+        assignedTo: e,
+        projectId: result._id,
+      })
+    }))
     return handleResponse({
       res,
       data: { ...result },
@@ -46,7 +59,6 @@ export const addMembertoProject = async (
       throw new AppError('You are not authorized to access this route', 400)
     }
     console.log((req.params.id, req.params.project))
-
     const result = await addMembertoProjectService(
       req.params.id,
       req.params.project

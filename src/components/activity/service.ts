@@ -25,11 +25,13 @@ export const getAllActivityService = async (
   action: string,
   orderBy: string,
   orderType: number,
-  isOrganization: boolean
+  isOrganization: boolean,
+  isForme: boolean,
+
 ) => {
   logger.info('Insite get all ticket service')
   try {
-    const condition: any = {}
+    let condition: any = {}
 
     if (projectId) {
       condition.projectId = new mongoose.Types.ObjectId(projectId)
@@ -41,7 +43,7 @@ export const getAllActivityService = async (
         )
 
         const projectIds = projects.map((ele) => ele._id)
-        condition.projectId = { projectId: { $in: projectIds } }
+        condition.projectId = { $in: projectIds }
       } else {
         const projects = await Project.find(
           { members: { $in: [new mongoose.Types.ObjectId(userId)] } },
@@ -66,7 +68,18 @@ export const getAllActivityService = async (
     if (action !== '') {
       condition.action = action
     }
+    if (isForme) {
+      condition = {
+        ...condition,
+        $or: [
+          { assignedTo: userId },
+          isOrganization ? { createdByOrg: userId } : { createdBy: userId },
+        ],
+      }
+    }
     const count = await Activity.countDocuments(condition)
+    console.log(condition)
+
     const pipeline: any = [
       {
         $match: condition,
@@ -207,13 +220,13 @@ export const getAllActivityService = async (
       },
       {
         $sort: {
-          [orderBy]: orderType,
+          createdAt: -1, // Sort by 'createdAt' field in descending order (latest first)
         },
       },
     ]
     if (offset > 0) {
       pipeline.push({
-        $skip: offset,
+        $skip: (offset - 1) * limit,
       })
     }
     if (limit > 0) {
@@ -222,7 +235,7 @@ export const getAllActivityService = async (
       })
     }
     const list = await Activity.aggregate(pipeline)
-    return { list, count }
+    return { list, count, totalPages: Math.ceil(count / limit) }
   } catch (error) {
     throw error
   }

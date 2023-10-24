@@ -51,7 +51,8 @@ export const getAllActivity = async (
       strAction,
       strorderBy,
       numOrderType,
-      req.user.role !== 'organization' ? false : true
+      req.user.role !== 'organization' ? false : true,
+      req.query.isForme === 'true' ? true : false
     )
     return handleResponse({
       res,
