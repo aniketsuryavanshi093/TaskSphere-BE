@@ -129,6 +129,16 @@ export const getAllActivityService = async (
           localField: 'createdByOrg',
           foreignField: '_id',
           as: 'createdByOrgData',
+          pipeline: [
+            {
+              $project: {
+                name: 1,
+                userName: 1,
+                profilePic: 1,
+                email: 1,
+              },
+            },
+          ],
         },
       },
       {
