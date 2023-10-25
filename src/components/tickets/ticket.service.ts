@@ -217,7 +217,7 @@ export const getPaginatedCommentsService = async (
             {
               $unwind: {
                 path: '$orgMember',
-                preserveNullAndEmptyArrays: true // Handle cases where orgMember is missing
+                preserveNullAndEmptyArrays: true, // Handle cases where orgMember is missing
               },
             },
             {
@@ -280,7 +280,7 @@ export const getPaginatedCommentsService = async (
           totalCommentCount: 1,
         },
       },
-    ]);
+    ])
 
     return {
       comments: comment[0]?.comments,

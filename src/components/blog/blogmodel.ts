@@ -10,6 +10,10 @@ const BlogSchema = new Schema(
             type: String,
             required: true,
         },
+        description: {
+            type: String,
+            required: true,
+        },
         slug: {
             type: String,
             required: true,
@@ -32,5 +36,7 @@ const BlogSchema = new Schema(
         timestamps: true,
     }
 )
+BlogSchema.index({ slug: 1 })
 const Blog = db.model<bloginterface>('Blog', BlogSchema)
+
 export default Blog

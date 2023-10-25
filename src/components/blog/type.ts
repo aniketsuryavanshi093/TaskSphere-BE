@@ -4,4 +4,5 @@ export type bloginterface = {
     previewImage: string
     slug: string
     author: string
+    description: string
 }
