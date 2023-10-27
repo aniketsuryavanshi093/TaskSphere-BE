@@ -1,5 +1,9 @@
 import { NextFunction } from 'express'
-import { createBlogService, getAblogService, getAllblogsService } from './service'
+import {
+    createBlogService,
+    getAblogService,
+    getAllblogsService,
+} from './service'
 import { handleResponse } from '@helpers/errorHandler'
 
 export const createBlog = async (
@@ -28,7 +32,8 @@ export const getAllblogs = async (
     next: NextFunction
 ): Promise<void | Response> => {
     try {
-        const data = await getAllblogsService()
+        const { page, limit } = req.query
+        const data = await getAllblogsService(parseInt(page), parseInt(limit))
         return handleResponse({
             res,
             data,

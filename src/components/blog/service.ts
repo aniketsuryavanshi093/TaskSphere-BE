@@ -10,10 +10,29 @@ export const createBlogService = async (body, userId) => {
     }
 }
 
-export const getAllblogsService = async () => {
+export const getAllblogsService = async (page: number, limit: number) => {
     try {
-        const rs = await Blog.find()
-        return rs
+        const pipeline = [
+            {
+                $match: {},
+            },
+        ]
+        const skip = (page - 1) * limit
+        if (page > 0) {
+            pipeline.push({
+                $skip: skip,
+            })
+        }
+        if (limit > 0) {
+            pipeline.push({
+                $limit: limit,
+            })
+        }
+        const [total, blogs] = await Promise.all([
+            Blog.countDocuments({}),
+            Blog.aggregate(pipeline),
+        ])
+        return { blogs, total, totalPages: Math.ceil(total / limit) }
     } catch (error) {
         throw new AppError(error, 400)
     }
