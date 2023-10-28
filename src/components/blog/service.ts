@@ -32,7 +32,12 @@ export const getAllblogsService = async (page: number, limit: number) => {
             Blog.countDocuments({}),
             Blog.aggregate(pipeline),
         ])
-        return { blogs, total, totalPages: Math.ceil(total / limit) }
+        return {
+            blogs,
+            total,
+            totalPages: Math.ceil(total / limit),
+            currentpage: page,
+        }
     } catch (error) {
         throw new AppError(error, 400)
     }
