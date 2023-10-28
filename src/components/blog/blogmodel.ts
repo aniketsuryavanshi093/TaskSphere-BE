@@ -36,7 +36,15 @@ const BlogSchema = new Schema(
         timestamps: true,
     }
 )
-BlogSchema.index({ slug: 1 })
+BlogSchema.index({ slug: 1, })
+BlogSchema.index(
+    { title: 'text', description: 'text' },
+    {
+        default_language: 'english', // Specify a language for stemming
+        name: 'TextIndex', // Give the index a name
+        weights: { title: 3, description: 1 }, // Adjust the weighting of fields
+    }
+)
 const Blog = db.model<bloginterface>('Blog', BlogSchema)
 
 export default Blog
