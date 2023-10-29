@@ -106,5 +106,8 @@
 		"@dummy": "build/src/components/dummy",
 		"@notification": "build/src/components/notification",
 		"@cron": "build/src/cron"
+	},
+	"engines": {
+		"node": ">=18.18.0 <19.0.0"
 	}
 }
