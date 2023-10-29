@@ -5,36 +5,36 @@ import { bloginterface } from './type'
 const { Schema } = mongoose
 
 const BlogSchema = new Schema(
-    {
-        title: {
-            type: String,
-            required: true,
-        },
-        description: {
-            type: String,
-            required: true,
-        },
-        slug: {
-            type: String,
-            required: true,
-        },
-        previewImage: {
-            type: String,
-            required: false,
-        },
-        content: {
-            type: String,
-            required: true,
-        },
-        author: {
-            type: Schema.Types.ObjectId,
-            ref: 'Organization',
-            required: true,
-        },
+  {
+    title: {
+      type: String,
+      required: true,
     },
-    {
-        timestamps: true,
-    }
+    description: {
+      type: String,
+      required: true,
+    },
+    slug: {
+      type: String,
+      required: true,
+    },
+    previewImage: {
+      type: String,
+      required: false,
+    },
+    content: {
+      type: String,
+      required: true,
+    },
+    author: {
+      type: Schema.Types.ObjectId,
+      ref: 'Organization',
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
 )
 BlogSchema.index({ slug: 1 })
 const Blog = db.model<bloginterface>('Blog', BlogSchema)

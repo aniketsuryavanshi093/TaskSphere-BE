@@ -6,8 +6,8 @@ export interface organizationInput {
   password: string
   role?: string
   userName: string
-  members: [Schema.Types.ObjectId],
-  projects: [Schema.Types.ObjectId],
+  members: [Schema.Types.ObjectId]
+  projects: [Schema.Types.ObjectId]
 }
 
 export interface organizationInterface extends organizationInput, Document {

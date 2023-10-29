@@ -1,8 +1,9 @@
-import logger from '@config/logger'
+/* eslint-disable no-useless-catch */
+import logger from '../../config/logger'
 import { ActivityInterface } from './type'
 import Activity from './model'
 import mongoose from 'mongoose'
-import Project from '@projects/projects.model'
+import Project from '../projects/projects.model'
 
 export const createActivity = async (payload) => {
   logger.info('inside get activity service')
@@ -26,8 +27,7 @@ export const getAllActivityService = async (
   orderBy: string,
   orderType: number,
   isOrganization: boolean,
-  isForme: boolean,
-
+  isForme: boolean
 ) => {
   logger.info('Insite get all ticket service')
   try {

@@ -1,4 +1,4 @@
-import Project from '@projects/projects.model'
+import Project from '../projects/projects.model'
 import AppError from '../../utils/appError'
 import Organization from './oragnization.model'
 import mongoose from 'mongoose'
@@ -29,7 +29,7 @@ export const getOrganizationProject = async (
 ) => {
   try {
     if (!isForOrganization && !isForAnalytics) {
-      const doc = await Organization.findById(userId)
+      const doc: any = await Organization.findById(userId)
         .populate({
           path: 'projects',
         })

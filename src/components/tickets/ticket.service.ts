@@ -1,8 +1,9 @@
-import logger from '@config/logger'
+/* eslint-disable no-useless-catch */
+import logger from '../../config/logger'
 import Ticket from './ticket.model'
 import { TicketInput, comment } from './types'
 import mongoose from 'mongoose'
-import Project from '@projects/projects.model'
+import Project from '../projects/projects.model'
 import Comment from './comments.model'
 import Reply from './replies.model'
 
@@ -23,7 +24,7 @@ export const addReplytocommentService = async (
   commentId: string
 ) => {
   try {
-    const ticket = await Reply.create({ ...data, comment: commentId })
+    const ticket: any = await Reply.create({ ...data, comment: commentId })
     await Ticket.findByIdAndUpdate(
       ticketId,
       {
@@ -42,7 +43,7 @@ export const updateTicketService = async (
   ticketId: string
 ) => {
   try {
-    const ticket = await Ticket.findByIdAndUpdate(
+    const ticket: any = await Ticket.findByIdAndUpdate(
       ticketId,
       {
         ...data,
@@ -60,7 +61,7 @@ export const createCommentService = async (
 ) => {
   try {
     // Create a new Comment document
-    const comment = await Comment.create({ ...data, replies: [] })
+    const comment: any = await Comment.create({ ...data, replies: [] })
 
     // Find and update the corresponding Ticket document
     const updatedTicket = await Ticket.findByIdAndUpdate(

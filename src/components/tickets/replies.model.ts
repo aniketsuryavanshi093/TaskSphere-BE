@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-import db from '@connections/masterDB'
+import db from '../../connections/masterDB'
 import { CommentInterface, ReplyInterface } from './types'
 const { Schema } = mongoose
 

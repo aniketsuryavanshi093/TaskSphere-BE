@@ -1,7 +1,7 @@
-import logger from '@config/logger'
-import { getMemeber } from '@members/member.service'
-import { getProjectService } from '@projects/projects.services'
-import AppError from '@utils/appError'
+import logger from '../config/logger'
+import { getMemeber } from '../components/members/member.service'
+import { getProjectService } from '../components/projects/projects.services'
+import AppError from '../utils/appError'
 import { NextFunction, Request, Response } from 'express'
 
 export const checkIsTicketAdministrator = async (

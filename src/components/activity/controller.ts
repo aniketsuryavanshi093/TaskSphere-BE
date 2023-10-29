@@ -1,5 +1,5 @@
-import logger from '@config/logger'
-import { handleResponse } from '@helpers/errorHandler'
+import logger from '../../config/logger'
+import { handleResponse } from '../../helpers/errorHandler'
 import { NextFunction, Request, Response } from 'express'
 import { getAllActivityService } from './service'
 
@@ -25,7 +25,7 @@ export const getAllActivity = async (
     const strOffset: string = offset ? offset.toString() : '0'
     const strLimit: string = limit ? limit.toString() : '0'
 
-    const strAction: string = action !== undefined ? action?.toString()! : ''
+    const strAction: string = action !== undefined ? action?.toString() : ''
 
     const projectid: string | null =
       projectId !== undefined ? projectId.toString() : null
@@ -36,7 +36,7 @@ export const getAllActivity = async (
       : new Date().toISOString().split('T')[0]
     const strType: string = type !== undefined ? type?.toString() : ''
     const strorderBy: string =
-      orderBy !== undefined ? orderBy?.toString()! : 'createdAt'
+      orderBy !== undefined ? orderBy?.toString() : 'createdAt'
     const numOrderType: number =
       orderType !== undefined ? Number(orderType)! : -1
 

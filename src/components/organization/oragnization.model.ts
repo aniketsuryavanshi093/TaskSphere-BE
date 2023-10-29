@@ -76,7 +76,7 @@ const organizationSchema = new Schema(
 
 organizationSchema.pre('save', async function (next) {
   if (this.isModified('password')) {
-    const hashPass = await bcrypt.hash(this.password, 12)
+    const hashPass = await bcrypt.hash(this.password!, 12)
     this.password = hashPass
     next()
   }

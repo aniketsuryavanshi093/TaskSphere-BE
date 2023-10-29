@@ -1,6 +1,6 @@
-import Member from '@members/member.model'
+import Member from '../members/member.model'
 import AppError from '../../utils/appError'
-import Organization from '@organization/oragnization.model'
+import Organization from '../organization/oragnization.model'
 
 export const createOrganization = async (input: any) => {
   try {
