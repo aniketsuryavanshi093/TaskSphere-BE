@@ -2,8 +2,8 @@ import jwt from 'jsonwebtoken'
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
 import { resolve } from 'path'
 import { generateKeyPairSync } from 'crypto'
-import config from '@config/config'
-import Logger from '@config/logger'
+import config from '../config/config'
+import Logger from '../config/logger'
 
 export interface JWTPayload extends jwt.JwtPayload {
   _id: string

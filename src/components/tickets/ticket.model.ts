@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-import db from '@connections/masterDB'
+import db from '../../connections/masterDB'
 import { TicketInterface } from './types'
 const { Schema } = mongoose
 

@@ -16,7 +16,7 @@
 // router.post('/forgotPassword', forgetPassword)
 // router.post('/resetPassword/:token', resetPassword)
 import express from 'express'
-import { userAuth } from '@middlewares/auth'
+import { userAuth } from '../../middlewares/auth'
 import {
   AddProject,
   addMembertoProject,

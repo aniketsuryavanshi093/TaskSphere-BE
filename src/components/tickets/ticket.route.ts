@@ -1,14 +1,14 @@
 import express from 'express'
-import { userAuth } from '@middlewares/auth'
+import { userAuth } from '../../middlewares/auth'
 import {
-    createTicket,
-    getAllTicket,
-    updateTicket,
-    createComment,
-    getComments,
-    addReplytocomment,
+  createTicket,
+  getAllTicket,
+  updateTicket,
+  createComment,
+  getComments,
+  addReplytocomment,
 } from './ticket.cotroller'
-import { checkIsTicketAdministrator } from '@middlewares/checkIsTicketAdministrator'
+import { checkIsTicketAdministrator } from '../../middlewares/checkIsTicketAdministrator'
 const router = express.Router()
 router.use(userAuth)
 

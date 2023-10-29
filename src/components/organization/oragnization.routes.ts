@@ -3,7 +3,7 @@ import {
   getOrganizationDetails,
   getAllorganizationsProject,
 } from './organization.controller'
-import { userAuth } from '@middlewares/auth'
+import { userAuth } from '../../middlewares/auth'
 // import { userAuth } from '../../middlewares/auth'
 // import {
 //   bookCabByid,

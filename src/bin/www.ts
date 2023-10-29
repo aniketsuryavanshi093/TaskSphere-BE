@@ -2,7 +2,7 @@ import { config } from 'dotenv'
 import { createServer } from 'http'
 import app from '../app'
 import logger from '../config/logger'
-import { generateKey } from '@utils/jwt'
+import { generateKey } from '../utils/jwt'
 
 config()
 /*

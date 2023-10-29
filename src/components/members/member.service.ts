@@ -1,9 +1,9 @@
-import AppError from '@utils/appError'
+import AppError from '../../utils/appError'
 import { MemberInterface, memberInput } from './types'
-import Member from '@members/member.model'
-import Project from '@projects/projects.model'
-import { projectTypes } from '@projects/types'
-import Organization from '@organization/oragnization.model'
+import Member from './member.model'
+import Project from '../projects/projects.model'
+import { projectTypes } from '../projects/types'
+import Organization from '../organization/oragnization.model'
 
 export const createMember = async (
   input: memberInput
@@ -102,7 +102,7 @@ export const getProjectAllusersService = async (
   projectId: string
 ): Promise<projectTypes> => {
   try {
-    const response = await Project.findById(projectId)
+    const response: any = await Project.findById(projectId)
       .populate([
         {
           path: 'members',
@@ -122,7 +122,7 @@ export const getorganizationAllusersService = async (
   orgId: string
 ): Promise<projectTypes> => {
   try {
-    const response = await Organization.findById(orgId)
+    const response: any = await Organization.findById(orgId)
       .populate({
         path: 'members',
       })

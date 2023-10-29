@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-import db from '@connections/masterDB'
+import db from '../../connections/masterDB'
 import { CommentInterface } from './types'
 const { Schema } = mongoose
 
@@ -48,8 +48,8 @@ const CommentSchema = new Schema(
   }
 )
 
-CommentSchema.pre(/^find/, function (next) {
-  //   this.populate('replies.author', 'userName name profilePic')
+CommentSchema.pre('find', function (next) {
+  // Inside the pre middleware for 'find', you can use this.populate to populate fields
   this.populate({
     path: 'replies.author',
     model: 'Member',

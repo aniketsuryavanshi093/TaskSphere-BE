@@ -7,8 +7,8 @@ import {
   getOrganization,
   updateMember,
   updateOrganization,
-} from '@auth/service'
-import { generateToken } from '@utils/jwt'
+} from '../auth/service'
+import { generateToken } from '../../utils/jwt'
 
 export const registerOrganization = async (
   req: Request,
@@ -93,7 +93,7 @@ export const update = async (
     const isMemberExist = await getMemeber({
       $or: [{ email }, { userName }],
     })
-    let doc = null
+    let doc: any = null
     if (isExist) {
       doc = await updateOrganization(
         { Bio, userName, profilePic },

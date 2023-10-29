@@ -2,11 +2,11 @@
 // import { TUser, userInput } from './types'
 // import User from './projects.model'
 
-import AppError from '@utils/appError'
+import AppError from '../../utils/appError'
 import Project from './projects.model'
 import { projectTypes } from './types'
-import Organization from '@organization/oragnization.model'
-import logger from '@config/logger'
+import Organization from '../organization/oragnization.model'
+import logger from '../../config/logger'
 import mongoose from 'mongoose'
 
 export const addProjectService = async (
@@ -17,7 +17,7 @@ export const addProjectService = async (
     if (isprojectExists) {
       throw new AppError('Project already exists with same title!', 400)
     }
-    const doc = await Project.create({ ...input })
+    const doc: any = await Project.create({ ...input })
     await Organization.findByIdAndUpdate(input.organizationId, {
       $push: {
         projects: doc,
@@ -34,7 +34,7 @@ export const addMembertoProjectService = async (
   projectId: string
 ): Promise<projectTypes> => {
   try {
-    const response = await Project.findByIdAndUpdate(
+    const response: any = await Project.findByIdAndUpdate(
       projectId,
       {
         $addToSet: {
@@ -65,7 +65,7 @@ export const getProjectService = async (query: any) => {
 export const getprojectbyuserService = async (userid: any, isForAnalytics) => {
   logger.info('Inside get project service')
   try {
-    let data = null
+    let data: any = null
     if (!isForAnalytics) {
       data = await Project.find({
         members: { $in: [userid] },

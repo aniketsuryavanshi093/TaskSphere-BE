@@ -1,6 +1,11 @@
 import express from 'express'
-import { login, registerOrganization, update, isExist } from '@auth/controller'
-import { userAuth } from '@middlewares/auth'
+import {
+  login,
+  registerOrganization,
+  update,
+  isExist,
+} from '../auth/controller'
+import { userAuth } from '../../middlewares/auth'
 
 const router = express.Router()
 

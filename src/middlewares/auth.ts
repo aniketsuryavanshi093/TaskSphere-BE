@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import AppError from '../utils/appError'
-import { verifyToken } from '@utils/jwt'
+import { verifyToken } from '../utils/jwt'
 
 export const userAuth = async (
   req: Request,

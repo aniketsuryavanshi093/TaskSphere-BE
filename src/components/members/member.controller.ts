@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import crypto from 'crypto'
-import AppError from '@utils/appError'
+import AppError from '../../utils/appError'
 import {
   forgotPasswordInput,
   loginInput,
@@ -16,12 +16,12 @@ import {
   getProjectAllusersService,
   getorganizationAllusersService,
   resetPasswordService,
-} from '@members/member.service'
+} from './member.service'
 import sendEmail from '../../utils/email'
 import logger from '../../config/logger'
-import { getOrganization } from '@organization/organization.service'
-import Organization from '@organization/oragnization.model'
-import { handleResponse } from '@helpers/errorHandler'
+import { getOrganization } from '../organization/organization.service'
+import Organization from '../organization/oragnization.model'
+import { handleResponse } from '../../helpers/errorHandler'
 export const addMember = async (
   req: Request,
   res: Response,
@@ -108,7 +108,6 @@ export const getorganizationAllusers = async (
     next(error)
   }
 }
-
 
 export const updateUser = async (
   req: Request,

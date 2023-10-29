@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { NextFunction, Request, Response } from 'express'
 import { TicketInput, comment } from './types'
-import { handleResponse } from '@helpers/errorHandler'
+import { handleResponse } from '../../helpers/errorHandler'
 import {
   addReplytocommentService,
   createTicketService,
@@ -18,7 +19,7 @@ export const createTicket = async (
 ) => {
   try {
     const data: Partial<TicketInput> = req.body
-    const result = await createTicketService({
+    const result: any = await createTicketService({
       ...data,
       createdBy: req.user.role === 'member' ? req.user._id : null,
       createdByOrg: req.user.role === 'organization' ? req.user._id : null,
@@ -58,11 +59,14 @@ export const getComments = async (
 ) => {
   try {
     const { ticketId } = req.params
-    const { pageNumber, pageSize } = req.query
+    const { pageNumber, pageSize } = req.query as {
+      pageNumber: string
+      pageSize: string
+    }
     const result = await getPaginatedCommentsService(
       ticketId,
       parseInt(pageNumber),
-      parseInt(pageSize)
+      parseInt(pageSize!)
     )
     return handleResponse({
       res,
@@ -127,7 +131,7 @@ export const createComment = async (
   next: NextFunction
 ) => {
   try {
-    const data: Partial<comment> = req.body
+    const data: any = req.body
     const { ticketId } = req.params
     const result = await createCommentService(data, ticketId)
     return handleResponse({
@@ -165,8 +169,8 @@ export const getAllTicket = async (
     // projectID , isforUser , date , priority , status , userIds (latest Data),search
     const strOffset: string = offset ? offset.toString() : '0'
     const strLimit: string = limit ? limit.toString() : '0'
-    const searchText: string = search !== undefined ? search?.toString()! : ''
-    const ticketStatus: string = status !== undefined ? status?.toString()! : ''
+    const searchText: string = search !== undefined ? search?.toString() : ''
+    const ticketStatus: string = status !== undefined ? status?.toString() : ''
     const forUser = isforUser !== 'true' ? false : true
     const _notshowDone = notshowDone === 'true' ? true : false
     const projectid: string | null =
@@ -179,11 +183,11 @@ export const getAllTicket = async (
     const strPriority: string =
       priority !== undefined ? priority?.toString() : ''
     const strorderBy: string =
-      orderBy !== undefined ? orderBy?.toString()! : 'createdAt'
+      orderBy !== undefined ? orderBy?.toString() : 'createdAt'
     const numOrderType: number =
       orderType !== undefined ? Number(orderType)! : -1
     const userId = forUser ? req.user._id : null
-    const strLabel: string = label !== undefined ? label?.toString()! : ''
+    const strLabel: string = label !== undefined ? label?.toString() : ''
     const listTickets = await getAllTicketService(
       parseInt(strOffset!),
       parseInt(strLimit!),

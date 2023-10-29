@@ -9,8 +9,8 @@ import {
   addMember,
   getprojectAllusers,
   getorganizationAllusers,
-} from '@members/member.controller'
-import { userAuth } from '@middlewares/auth'
+} from '../members/member.controller'
+import { userAuth } from '../../middlewares/auth'
 
 const router = express.Router()
 router.post('/addMember', userAuth, addMember)

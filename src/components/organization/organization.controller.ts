@@ -49,13 +49,16 @@ export const getAllorganizationsProject = async (
       isAnalytics && isAnalytics.toString() === 'true' ? true : false
     const sortBy = orderBy ? orderBy.toString() : 'createdAt'
     const sortOrder = orderType ? orderType.toString().toUpperCase() : 'DESC'
+    const strpage = page ? page.toString() : '1'
+    const strperPage = perPage ? perPage.toString() : '1'
+
     const organization = await getOrganizationProject(
       userId,
       isForOrganization,
       sortBy,
       sortOrder,
-      page,
-      perPage,
+      strpage,
+      strperPage,
       isForAnalytics
     )
     return res.status(200).json({

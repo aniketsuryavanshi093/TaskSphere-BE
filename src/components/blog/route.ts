@@ -1,5 +1,5 @@
 import express from 'express'
-import { userAuth } from '@middlewares/auth'
+import { userAuth } from '../../middlewares/auth'
 import { createBlog, getAllblogs, getBlog, searchBlog } from './controller'
 
 const router = express.Router()

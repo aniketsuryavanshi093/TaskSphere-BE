@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Request, Response, NextFunction } from 'express'
-import AppError from '@utils/appError'
-import { handleResponse } from '@helpers/errorHandler'
+import AppError from '../../utils/appError'
+import { handleResponse } from '../../helpers/errorHandler'
 import {
   addMembertoProjectService,
   addProjectService,
@@ -27,17 +27,18 @@ export const AddProject = async (
     })
     // for (let i = 0; i < req.body.members.length; i++) {
 
-
     // }
-    await Promise.all(req.body.members.map(async (e) => {
-      await createActivity({
-        createdByOrg: req.user._id,
-        action: 'added',
-        type: 'Project',
-        assignedTo: e,
-        projectId: result._id,
+    await Promise.all(
+      req.body.members.map(async (e) => {
+        await createActivity({
+          createdByOrg: req.user._id,
+          action: 'added',
+          type: 'Project',
+          assignedTo: e,
+          projectId: result._id,
+        })
       })
-    }))
+    )
     return handleResponse({
       res,
       data: { ...result },

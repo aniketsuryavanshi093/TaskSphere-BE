@@ -1,4 +1,4 @@
-import { memberInput } from '@members/types'
+import { memberInput } from '../members/types'
 import { Document } from 'mongoose'
 export interface projectTypes extends Document {
   title: string
