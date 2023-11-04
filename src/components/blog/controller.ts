@@ -3,6 +3,7 @@ import {
   createBlogService,
   getAblogService,
   getAllblogsService,
+  searchBlogsService,
 } from './service'
 import { handleResponse } from '../../helpers/errorHandler'
 
@@ -34,6 +35,26 @@ export const getAllblogs = async (
   try {
     const { page, limit } = req.query as { page: string; limit: string }
     const data = await getAllblogsService(parseInt(page), parseInt(limit))
+    return handleResponse({
+      res,
+      data,
+    })
+  } catch (error: any) {
+    if (error.isJoi === true) {
+      error.statusCode = 422
+    }
+    next(error)
+  }
+}
+
+export const searchBlog = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void | Response> => {
+  try {
+    const { search, isFulsearch, page } = req.query
+    const data = await searchBlogsService(search, !!isFulsearch, page)
     return handleResponse({
       res,
       data,
