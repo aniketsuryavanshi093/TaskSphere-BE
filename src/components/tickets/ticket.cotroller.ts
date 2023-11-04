@@ -105,6 +105,8 @@ export const updateTicket = async (
   try {
     const data: Partial<TicketInput> = req.body
     const { ticketId } = req.params
+    console.log(data);
+
     await createActivity({
       createdBy: req.user.role === 'member' ? req.user._id : null,
       createdByOrg: req.user.role === 'organization' ? req.user._id : null,
