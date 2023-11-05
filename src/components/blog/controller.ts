@@ -54,7 +54,13 @@ export const searchBlog = async (
 ): Promise<void | Response> => {
   try {
     const { search, isFulsearch, page } = req.query
-    const data = await searchBlogsService(search, !!isFulsearch, page)
+    const searchText = search ? search.toString() : ''
+    const numpage = page ? page.toString() : '1'
+    const data = await searchBlogsService(
+      searchText,
+      !!isFulsearch,
+      parseInt(numpage)
+    )
     return handleResponse({
       res,
       data,
