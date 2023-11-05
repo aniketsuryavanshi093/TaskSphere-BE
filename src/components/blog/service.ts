@@ -17,6 +17,24 @@ export const getAllblogsService = async (page: number, limit: number) => {
       {
         $match: {},
       },
+      {
+        $lookup: {
+          from: 'organizations', // The name of the 'Organization' collection in your database
+          localField: 'author',
+          foreignField: '_id',
+          as: 'author', // This will replace the 'author' field with the populated data
+          pipeline: [
+            {
+              $project: {
+                name: 1,
+                userName: 1,
+                email: 1,
+                profilePic: 1,
+              },
+            },
+          ],
+        },
+      },
     ]
     const skip = (page - 1) * limit
     if (page > 0) {

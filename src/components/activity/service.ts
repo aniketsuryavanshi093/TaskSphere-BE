@@ -78,7 +78,6 @@ export const getAllActivityService = async (
       }
     }
     const count = await Activity.countDocuments(condition)
-    console.log(condition)
 
     const pipeline: any = [
       {

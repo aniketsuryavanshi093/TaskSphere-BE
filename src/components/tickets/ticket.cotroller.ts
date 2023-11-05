@@ -9,6 +9,7 @@ import {
   getPaginatedCommentsService,
   updateTicketService,
   createCommentService,
+  searchTicketService,
 } from './ticket.service'
 import { createActivity } from '../activity/service'
 
@@ -78,6 +79,7 @@ export const getComments = async (
   }
 }
 
+
 export const addReplytocomment = async (
   req: Request,
   res: Response,
@@ -105,7 +107,6 @@ export const updateTicket = async (
   try {
     const data: Partial<TicketInput> = req.body
     const { ticketId } = req.params
-    console.log(data);
 
     await createActivity({
       createdBy: req.user.role === 'member' ? req.user._id : null,
@@ -204,7 +205,9 @@ export const getAllTicket = async (
       strorderBy,
       numOrderType,
       strLabel,
-      _notshowDone
+      _notshowDone,
+      req.user.role !== 'organization' ? false : true,
+      req.user._id
     )
     return handleResponse({
       res,
