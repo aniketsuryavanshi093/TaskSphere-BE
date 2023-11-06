@@ -74,5 +74,13 @@ const TicketSchema = new Schema(
     timestamps: true,
   }
 )
+TicketSchema.index(
+  { ticketTag: 'text', title: 'text' },
+  {
+    default_language: 'english', // Specify a language for stemming
+    name: 'TextIndexTicket', // Give the index a name
+    weights: { title: 1, ticketTag: 3 }, // Adjust the weighting of fields
+  }
+)
 const Ticket = db.model<TicketInterface>('Ticket', TicketSchema)
 export default Ticket

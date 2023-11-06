@@ -2,7 +2,7 @@
 import logger from '../../config/logger'
 import Ticket from './ticket.model'
 import { TicketInput, comment } from './types'
-import mongoose from 'mongoose'
+import mongoose, { PipelineStage } from 'mongoose'
 import Project from '../projects/projects.model'
 import Comment from './comments.model'
 import Reply from './replies.model'
@@ -13,6 +13,21 @@ export const createTicketService = async (data: Partial<TicketInput>) => {
       $inc: { ticketsCount: 1 },
     })
     return await Ticket.create(data)
+  } catch (error) {
+    throw error
+  }
+}
+
+export const searchTicketService = async (serachtext: string) => {
+  try {
+    const pipeline: PipelineStage[] = [
+      {
+        $match: { $text: { $search: serachtext } },
+      },
+      {
+        $sort: { score: { $meta: 'textScore' } },
+      },
+    ]
   } catch (error) {
     throw error
   }
@@ -309,7 +324,9 @@ export const getAllTicketService = async (
   orderBy,
   orderType,
   label,
-  notshowDone
+  notshowDone,
+  isOrganization,
+  currentuserid
 ) => {
   logger.info('Insite get all ticket service')
   try {
@@ -318,10 +335,22 @@ export const getAllTicketService = async (
       condition.projectId = new mongoose.Types.ObjectId(projectId)
     }
     if (search !== '') {
-      condition.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { label: { $regex: search, $options: 'i' } },
-      ]
+      if (isOrganization) {
+        const projects = await Project.find(
+          { organizationId: new mongoose.Types.ObjectId(currentuserid) },
+          '_id'
+        )
+        const projectIds = projects.map((ele) => ele._id)
+        condition.projectId = { $in: projectIds }
+      } else {
+        const projects = await Project.find(
+          { members: { $in: [new mongoose.Types.ObjectId(currentuserid)] } },
+          '_id'
+        )
+        const projectIds = projects.map((ele) => ele._id)
+        condition.projectId = { $in: projectIds }
+      }
+      condition.$text = { $search: search }
     }
     if (userId) {
       condition.assignedTo = new mongoose.Types.ObjectId(userId)
@@ -349,8 +378,9 @@ export const getAllTicketService = async (
         $in: userIds,
       }
     }
+
     const count = await Ticket.countDocuments(condition)
-    const pipeline: any = [
+    const pipeline: PipelineStage[] = [
       {
         $match: condition,
       },
@@ -372,7 +402,7 @@ export const getAllTicketService = async (
       },
       {
         $project: {
-          comments: 0, // Exclude the "comments" field
+          comments: 0,
         },
       },
       {
@@ -395,6 +425,12 @@ export const getAllTicketService = async (
     if (limit > 0) {
       pipeline.push({
         $limit: limit,
+      })
+    }
+    if (search != '') {
+      pipeline.push({ $sort: { score: { $meta: 'textScore' } } })
+      pipeline.push({
+        $limit: 4,
       })
     }
     const list = await Ticket.aggregate(pipeline)
