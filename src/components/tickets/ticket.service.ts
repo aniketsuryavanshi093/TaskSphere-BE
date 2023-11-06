@@ -20,9 +20,9 @@ export const createTicketService = async (data: Partial<TicketInput>) => {
 
 export const searchTicketService = async (serachtext: string) => {
   try {
-    const pipeline: PipelineStage = [
+    const pipeline: PipelineStage[] = [
       {
-        $match: { $text: { $search: searchtext } },
+        $match: { $text: { $search: serachtext } },
       },
       {
         $sort: { score: { $meta: 'textScore' } },
