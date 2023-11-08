@@ -20,6 +20,12 @@ const organizationSchema = new Schema(
       type: String,
       required: true,
     },
+    blogs: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Blog',
+      },
+    ],
     members: [
       {
         type: Schema.Types.ObjectId,
