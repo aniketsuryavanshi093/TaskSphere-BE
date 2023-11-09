@@ -79,7 +79,6 @@ export const getComments = async (
   }
 }
 
-
 export const addReplytocomment = async (
   req: Request,
   res: Response,
@@ -113,7 +112,9 @@ export const updateTicket = async (
       createdByOrg: req.user.role === 'organization' ? req.user._id : null,
       action: 'update',
       type: 'Ticket',
-      ticketUpdatetext: `from ${req.body.currentstatus} to ${req.body.status}`,
+      ticketUpdatetext:
+        req?.body?.ticketDatachanged ||
+        `from ${req.body.currentstatus} to ${req.body.status}`,
       projectId: req.body.projectId,
       ticketId,
     })
