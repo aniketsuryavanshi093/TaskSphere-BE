@@ -3,9 +3,12 @@ import {
   createBlogService,
   getAblogService,
   getAllblogsService,
+  getAllusersBlogService,
   searchBlogsService,
+  updateblogService,
 } from './service'
 import { handleResponse } from '../../helpers/errorHandler'
+import { bloginterface } from './type'
 
 export const createBlog = async (
   req: Request,
@@ -35,6 +38,46 @@ export const getAllblogs = async (
   try {
     const { page, limit } = req.query as { page: string; limit: string }
     const data = await getAllblogsService(parseInt(page), parseInt(limit))
+    return handleResponse({
+      res,
+      data,
+    })
+  } catch (error: any) {
+    if (error.isJoi === true) {
+      error.statusCode = 422
+    }
+    next(error)
+  }
+}
+
+export const updateBlog = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void | Response> => {
+  try {
+    const _id = req.user._id
+    const { id } = req.params
+    const data = await updateblogService(id, req.body as bloginterface, _id)
+    return handleResponse({
+      res,
+      data,
+    })
+  } catch (error: any) {
+    if (error.isJoi === true) {
+      error.statusCode = 422
+    }
+    next(error)
+  }
+}
+export const getAllusersBlog = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void | Response> => {
+  try {
+    const { userid } = req.params
+    const data = await getAllusersBlogService(userid)
     return handleResponse({
       res,
       data,

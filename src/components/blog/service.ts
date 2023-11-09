@@ -1,11 +1,49 @@
 import AppError from '../../utils/appError'
 import Blog from './blogmodel'
 import { PipelineStage } from 'mongoose'
+import { bloginterface } from './type'
+import Organization from '@organization/oragnization.model'
 
 export const createBlogService = async (body, userId) => {
   try {
     const rs = await Blog.create({ ...body, author: userId })
+    await Organization.findByIdAndUpdate(userId, {
+      $push: { blogs: rs._id },
+    })
     return rs
+  } catch (error: any) {
+    throw new AppError(error, 400)
+  }
+}
+export const getAllusersBlogService = async (userId) => {
+  try {
+    const blogs = await Blog.findById(userId)
+      .populate([{ path: 'organizationId' }])
+      .select('blogs')
+    if (!blogs) {
+      throw new AppError('User not found!', 400)
+    }
+    return rs._doc
+  } catch (error: any) {
+    throw new AppError(error, 400)
+  }
+}
+
+export const updateblogService = async (
+  blogid: string,
+  data: bloginterface,
+  userid: string
+) => {
+  try {
+    const user = await Blog.findById(blogid)
+    if (user?.author.toString() !== userid) {
+      throw new AppError('You are not authorized to update this blogpost!', 400)
+    }
+    const rs = await Blog.findByIdAndUpdate(blogid, { ...data }, { new: true })
+    if (!rs) {
+      throw new AppError('Blog not found!', 400)
+    }
+    return rs._doc
   } catch (error: any) {
     throw new AppError(error, 400)
   }
