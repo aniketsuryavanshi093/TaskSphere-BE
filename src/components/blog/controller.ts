@@ -76,8 +76,13 @@ export const getAllusersBlog = async (
   next: NextFunction
 ): Promise<void | Response> => {
   try {
-    const { userid } = req.params
-    const data = await getAllusersBlogService(userid)
+    const { id } = req.params
+    const { page, limit } = req.query as { page: string; limit: string }
+    const data = await getAllusersBlogService(
+      parseInt(page),
+      parseInt(limit),
+      id
+    )
     return handleResponse({
       res,
       data,
