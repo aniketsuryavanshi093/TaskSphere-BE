@@ -1,11 +1,109 @@
 import AppError from '../../utils/appError'
 import Blog from './blogmodel'
-import { PipelineStage } from 'mongoose'
+import mongoose, { Mongoose, PipelineStage } from 'mongoose'
+import { bloginterface } from './type'
+import Organization from '../organization/oragnization.model'
 
 export const createBlogService = async (body, userId) => {
   try {
     const rs = await Blog.create({ ...body, author: userId })
+    await Organization.findByIdAndUpdate(userId, {
+      $push: { blogs: rs._id },
+    })
     return rs
+  } catch (error: any) {
+    throw new AppError(error, 400)
+  }
+}
+export const getAllusersBlogService = async (
+  page: number,
+  limit: number,
+  userId: string
+) => {
+  // try {
+  //   const blogs = await Blog.findById(userId)
+  //     .populate([{ path: 'organizationId' }])
+  //     .select('blogs')
+  //   if (!blogs) {
+  //     throw new AppError('User not found!', 400)
+  //   }
+  //   return rs._doc
+  // } catch (error: any) {
+  //   throw new AppError(error, 400)
+  // }
+  console.log(userId)
+
+  try {
+    const pipeline: PipelineStage[] = [
+      {
+        $match: {
+          author: new mongoose.Types.ObjectId(userId),
+        },
+      },
+      {
+        $lookup: {
+          from: 'organizations', // The name of the 'Organization' collection in your database
+          localField: 'author',
+          foreignField: '_id',
+          as: 'author', // This will replace the 'author' field with the populated data
+          pipeline: [
+            {
+              $project: {
+                name: 1,
+                userName: 1,
+                email: 1,
+                profilePic: 1,
+              },
+            },
+          ],
+        },
+      },
+    ]
+    const skip = (page - 1) * limit
+    if (page > 0) {
+      pipeline.push({
+        $skip: skip,
+      })
+    }
+    if (limit > 0) {
+      pipeline.push({
+        $limit: limit,
+      })
+    }
+    const [total, blogs] = await Promise.all([
+      Blog.countDocuments({ author: userId }),
+      Blog.aggregate(pipeline),
+    ])
+    return {
+      blogs,
+      total,
+      totalPages: Math.ceil(total / limit),
+      currentpage: page,
+    }
+  } catch (error: any) {
+    throw new AppError(error, 400)
+  }
+}
+
+export const updateblogService = async (
+  blogid: string,
+  data: bloginterface,
+  userid: string
+) => {
+  try {
+    const user = await Blog.findById(blogid)
+    if (user?.author.toString() !== userid) {
+      throw new AppError('You are not authorized to update this blogpost!', 400)
+    }
+    const rs: any = await Blog.findByIdAndUpdate(
+      blogid,
+      { ...data },
+      { new: true }
+    )
+    if (!rs) {
+      throw new AppError('Blog not found!', 400)
+    }
+    return rs?._doc
   } catch (error: any) {
     throw new AppError(error, 400)
   }
@@ -33,6 +131,11 @@ export const getAllblogsService = async (page: number, limit: number) => {
               },
             },
           ],
+        },
+      },
+      {
+        $project: {
+          content: 0,
         },
       },
     ]
