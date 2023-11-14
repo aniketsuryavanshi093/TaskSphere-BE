@@ -2,7 +2,7 @@ import AppError from '../../utils/appError'
 import Blog from './blogmodel'
 import mongoose, { Mongoose, PipelineStage } from 'mongoose'
 import { bloginterface } from './type'
-import Organization from '@organization/oragnization.model'
+import Organization from '../organization/oragnization.model'
 
 export const createBlogService = async (body, userId) => {
   try {
@@ -95,11 +95,15 @@ export const updateblogService = async (
     if (user?.author.toString() !== userid) {
       throw new AppError('You are not authorized to update this blogpost!', 400)
     }
-    const rs = await Blog.findByIdAndUpdate(blogid, { ...data }, { new: true })
+    const rs: any = await Blog.findByIdAndUpdate(
+      blogid,
+      { ...data },
+      { new: true }
+    )
     if (!rs) {
       throw new AppError('Blog not found!', 400)
     }
-    return rs._doc
+    return rs?._doc
   } catch (error: any) {
     throw new AppError(error, 400)
   }
