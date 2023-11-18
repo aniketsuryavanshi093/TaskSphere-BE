@@ -25,25 +25,26 @@ export const AddProject = async (
       ...req.body,
       organizationId: req.user._id,
     })
-    // for (let i = 0; i < req.body.members.length; i++) {
-
-    // }
-    await Promise.all(
-      req.body.members.map(async (e) => {
-        await createActivity({
-          createdByOrg: req.user._id,
-          action: 'added',
-          type: 'Project',
-          assignedTo: e,
-          projectId: result._id,
+    if (req?.body?.length) {
+      await Promise.all(
+        req.body.members.map(async (e) => {
+          await createActivity({
+            createdByOrg: req.user._id,
+            action: 'added',
+            type: 'Project',
+            assignedTo: e,
+            projectId: result._id,
+          })
         })
-      })
-    )
+      )
+    }
     return handleResponse({
       res,
       data: { ...result },
     })
   } catch (error: any) {
+    console.log(error)
+
     if (error.isJoi === true) {
       error.statusCode = 422
     }
