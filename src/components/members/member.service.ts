@@ -185,10 +185,10 @@ export const getorganizationAllusersService = async (
     const result = await Member.aggregate(aggregatePipeline)
 
     // Extracting the results
-    console.log(result)
+    // console.log(result)
     const { paginatedResults, totalCount } = result[0]
-    console.log('Paginated Results:', paginatedResults)
-    console.log('Total Members:', totalCount[0] ? totalCount[0].count : 0)
+    // console.log('Paginated Results:', paginatedResults)
+    // console.log('Total Members:', totalCount[0] ? totalCount[0].count : 0)
     return {
       list: paginatedResults,
       count: totalCount[0] ? totalCount[0].count : 0,
