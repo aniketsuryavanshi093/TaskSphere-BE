@@ -119,10 +119,12 @@ export const getProjectAllusersService = async (
     throw new AppError(error, 400)
   }
 }
-export const getorganizationAllusersService = async (orgId: string) => {
+export const getorganizationAllusersService = async (
+  orgId: string,
+  pageNumber: string,
+  pageSize: string
+) => {
   try {
-    const pageSize = 5 // Set the page size
-    const pageNumber = 0
     const aggregatePipeline = [
       {
         $match: {
@@ -165,8 +167,8 @@ export const getorganizationAllusersService = async (orgId: string) => {
       {
         $facet: {
           paginatedResults: [
-            { $skip: (pageNumber - 1) * pageSize },
-            { $limit: pageSize },
+            { $skip: (parseInt(pageNumber) - 1) * parseInt(pageSize) },
+            { $limit: parseInt(pageSize) },
           ],
           totalCount: [
             {

@@ -95,7 +95,14 @@ export const getorganizationAllusers = async (
     // if (req.user.role !== 'organization') {
     //     throw new AppError('You are not authorized to access this route', 400)
     // }
-    const result = await getorganizationAllusersService(req.params.org)
+    const { page, perPage } = req.query
+    const strpage = page ? page.toString() : '1'
+    const strperPage = perPage ? perPage.toString() : '1'
+    const result = await getorganizationAllusersService(
+      req.params.org,
+      strpage,
+      strperPage
+    )
     return handleResponse({
       res,
       message: 'successfully fetched all organization users',
