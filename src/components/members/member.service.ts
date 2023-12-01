@@ -4,6 +4,7 @@ import Member from './member.model'
 import Project from '../projects/projects.model'
 import { projectTypes } from '../projects/types'
 import Organization from '../organization/oragnization.model'
+import mongoose from 'mongoose'
 
 export const createMember = async (
   input: memberInput
@@ -118,19 +119,78 @@ export const getProjectAllusersService = async (
     throw new AppError(error, 400)
   }
 }
-export const getorganizationAllusersService = async (
-  orgId: string
-): Promise<projectTypes> => {
+export const getorganizationAllusersService = async (orgId: string) => {
   try {
-    const response: any = await Organization.findById(orgId)
-      .populate({
-        path: 'members',
-      })
-      .select('members')
-    if (response === null || response === undefined) {
-      throw new AppError('Organization Does not exists!', 400)
+    const pageSize = 5 // Set the page size
+    const pageNumber = 0
+    const aggregatePipeline = [
+      {
+        $match: {
+          organizationId: new mongoose.Types.ObjectId(orgId),
+        },
+      },
+      {
+        $lookup: {
+          from: 'tickets',
+          localField: '_id',
+          foreignField: 'assignedTo',
+          as: 'tasks',
+        },
+      },
+      {
+        $unwind: {
+          path: '$tasks',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $group: {
+          _id: '$_id',
+          name: { $first: '$name' },
+          createdAt: { $first: '$createdAt' },
+          userName: { $first: '$userName' },
+          profilePic: { $first: '$profilePic' },
+          totalActiveTasks: {
+            $sum: {
+              $cond: {
+                if: { $in: ['$tasks.status', ['pending', 'progress']] },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          totalTasks: { $sum: 1 },
+        },
+      },
+      {
+        $facet: {
+          paginatedResults: [
+            { $skip: (pageNumber - 1) * pageSize },
+            { $limit: pageSize },
+          ],
+          totalCount: [
+            {
+              $group: {
+                _id: null,
+                count: { $sum: 1 },
+              },
+            },
+          ],
+        },
+      },
+    ]
+
+    const result = await Member.aggregate(aggregatePipeline)
+
+    // Extracting the results
+    console.log(result)
+    const { paginatedResults, totalCount } = result[0]
+    console.log('Paginated Results:', paginatedResults)
+    console.log('Total Members:', totalCount[0] ? totalCount[0].count : 0)
+    return {
+      list: paginatedResults,
+      count: totalCount[0] ? totalCount[0].count : 0,
     }
-    return response?._doc
   } catch (error: any) {
     throw new AppError(error, 400)
   }
